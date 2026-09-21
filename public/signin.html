@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative Workspace - Login & Register</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .auth-card {
+            max-width: 450px;
+            margin: 80px auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="authApp" class="container">
+
+        <div class="card auth-card p-4 bg-white">
+
+            <h3 class="text-center mb-4 text-primary fw-bold">
+                Workspace Engine
+            </h3>
+
+            <!-- Tabs -->
+            <ul class="nav nav-pills nav-justified mb-4">
+
+                <li class="nav-item">
+                    <button class="nav-link" :class="{ active: currentTab === 'login' }" @click="setTab('login')">
+                        Login
+                    </button>
+                </li>
+
+                <li class="nav-item">
+                    <button class="nav-link" :class="{ active: currentTab === 'register' }" @click="setTab('register')">
+                        Sign Up
+                    </button>
+                </li>
+
+            </ul>
+
+            <!-- Message -->
+            <div v-if="message" class="alert" :class="isError ? 'alert-danger' : 'alert-success'">
+                {{ message }}
+            </div>
+
+
+            <!-- LOGIN -->
+            <form v-if="currentTab === 'login'" @submit.prevent="handleLogin">
+
+                <div class="mb-3">
+                    <label class="form-label">Email Address</label>
+
+                    <input type="email" class="form-control" v-model="loginData.email" placeholder="name@example.com"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+
+                    <input type="password" class="form-control" v-model="loginData.password"
+                        placeholder="Enter password" minlength="6" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-2">
+                    Login
+                </button>
+
+            </form>
+
+
+            <!-- REGISTER -->
+            <form v-if="currentTab === 'register'" @submit.prevent="handleRegister">
+
+                <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+
+                    <input type="text" class="form-control" v-model="registerData.name" placeholder="Enter full name"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email Address</label>
+
+                    <input type="email" class="form-control" v-model="registerData.email" placeholder="name@example.com"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+
+                    <input type="password" class="form-control" v-model="registerData.password"
+                        placeholder="Create password" minlength="6" required>
+
+                    <div class="form-text">
+                        Password must be at least 6 characters.
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="mb-3">
+                    <label class="form-label">Confirm Password</label>
+
+                    <input type="password" class="form-control" v-model="registerData.confirmPassword"
+                        placeholder="Confirm password" minlength="6" required>
+
+                    <div v-if="registerData.confirmPassword &&
+                 registerData.password !== registerData.confirmPassword" class="text-danger mt-1">
+                        Passwords do not match.
+                    </div>
+
+                    <div v-if="registerData.confirmPassword &&
+                 registerData.password === registerData.confirmPassword" class="text-success mt-1">
+                        Passwords match.
+                    </div>
+                </div>
+
+                <!-- Role -->
+                <div class="mb-3">
+                    <label class="form-label">Select Role</label>
+
+                    <select class="form-select" v-model="registerData.role">
+
+                        <option value="Member">
+                            Member (View & Update tasks)
+                        </option>
+
+                        <option value="Admin">
+                            Admin (Create & Manage workspaces)
+                        </option>
+
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 mt-2"
+                    :disabled="registerData.password !== registerData.confirmPassword">
+
+                    Create Account
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        const app = Vue.createApp({
+
+            data() {
+                return {
+                    currentTab: 'login',
+                    message: '',
+                    isError: false,
+
+                    loginData: {
+                        email: '',
+                        password: ''
+                    },
+
+                    registerData: {
+                        name: '',
+                        email: '',
+                        password: '',
+                        confirmPassword: '',
+                        role: 'Member'
+                    }
+
+                }
+            },
+
+            methods: {
+
+                setTab(tab) {
+                    this.currentTab = tab
+                    this.message = ''
+                },
+
+                async handleLogin() {
+                    if (this.loginData.password.length < 6) {
+                        this.message = 'Password must be at least 6 characters.';
+                        this.isError = true;
+                        return;
+                    }
+
+                    try {
+                        var response = await fetch('/api/auth/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                email: this.loginData.email,
+                                password: this.loginData.password
+                            })
+                        });
+
+                        var result = await response.json();
+
+                        if (!response.ok) {
+                            this.message = result.message || 'Login failed';
+                            this.isError = true;
+                            return;
+                        }
+
+                        this.message = result.message || 'Login successful!';
+                        this.isError = false;
+
+                        if (result.token) {
+                            localStorage.setItem('token', result.token);
+                            localStorage.setItem('user', JSON.stringify(result.user));
+                        }
+                    } catch (err) {
+                        console.error('Login error:', err);
+                        this.message = 'Error connecting to server. Is node server.js running?';
+                        this.isError = true;
+                    }
+                },
+
+                async handleRegister() {
+                    if (this.registerData.password.length < 6) {
+                        this.message = 'Password must be at least 6 characters.';
+                        this.isError = true;
+                        return;
+                    }
+
+                    if (this.registerData.password !== this.registerData.confirmPassword) {
+                        this.message = 'Passwords do not match.';
+                        this.isError = true;
+                        return;
+                    }
+
+                    try {
+                        // Send real POST request to the backend
+                        var response = await fetch('/api/auth/register', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name: this.registerData.name,
+                                email: this.registerData.email,
+                                password: this.registerData.password,
+                                role: this.registerData.role
+                            })
+                        });
+
+                        var result = await response.json();
+
+                        if (!response.ok) {
+                            // Display the exact error from the server (e.g. "Email already registered")
+                            this.message = result.message || 'Registration failed';
+                            this.isError = true;
+                            return;
+                        }
+
+                        this.message = result.message || 'Account created successfully!';
+                        this.isError = false;
+
+                        // Clear the registration form
+                        this.registerData = {
+                            name: '',
+                            email: '',
+                            password: '',
+                            confirmPassword: '',
+                            role: 'Member'
+                        };
+                    } catch (err) {
+                        console.error('Registration error:', err);
+                        this.message = 'Error connecting to server. Is node server.js running?';
+                        this.isError = true;
+                    }
+                }
+
+            }
+
+        })
+
+        app.mount('#authApp')
+
+    </script>
+
+</body>
+
+</html>
