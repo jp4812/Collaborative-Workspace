@@ -1,14 +1,18 @@
 var express = require('express');
 var dotenv = require('dotenv');
 var connectDB = require('./config/db');
-var authRoutes = require('./routes/authRoutes');
 
+// Route imports
+var authRoutes = require('./routes/authRoutes');
+var workspaceRoutes = require('./routes/workspaceRoutes');
+
+// Environment & Database
 dotenv.config();
 connectDB();
 
 var app = express();
 
-// Enable CORS for frontend requests (e.g. from Live Server or separate port)
+// CORS Middleware
 app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -19,18 +23,22 @@ app.use(function (req, res, next) {
     next();
 });
 
-// MUST BE BEFORE THE ROUTES:
+// JSON Body Parser Middleware
 app.use(express.json());
 
-// Serve static files from public folder (signin.html, css, js, etc.)
+// Serve static files
 app.use(express.static('public'));
 
+// Base health route
 app.get('/', function (req, res) {
     res.send('Server is working');
 });
-// Auth routes:
-app.use('/api/auth', authRoutes);
 
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/workspaces', workspaceRoutes);
+
+// Start Server
 var PORT = process.env.PORT || 5000;
 app.listen(PORT, function () {
     console.log('Server running on port ' + PORT);

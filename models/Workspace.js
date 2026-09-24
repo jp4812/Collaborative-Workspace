@@ -9,7 +9,6 @@ var WorkspaceSchema = new Schema({
   },
   description: {
     type: String,
-    trim: true,
     default: ''
   },
   owner: {
