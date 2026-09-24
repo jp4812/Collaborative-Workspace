@@ -5,7 +5,7 @@ var connectDB = require('./config/db');
 // Route imports
 var authRoutes = require('./routes/authRoutes');
 var workspaceRoutes = require('./routes/workspaceRoutes');
-
+var taskRoutes = require('./routes/taskRoutes');
 // Environment & Database
 dotenv.config();
 connectDB();
@@ -37,6 +37,7 @@ app.get('/', function (req, res) {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/workspaces', workspaceRoutes);
+app.use('/api/tasks', taskRoutes);
 
 // Start Server
 var PORT = process.env.PORT || 5000;
