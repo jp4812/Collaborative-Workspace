@@ -1,96 +1,101 @@
-var express = require('express');
-var bcrypt = require('bcryptjs');
-var jwt = require('jsonwebtoken');
-var User = require('../models/User');
+const express = require('express');
+const router = express.Router();
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const { authenticate, authorizeRoles } = require('../middleware/auth');
 
-var router = express.Router();
+// Strict Corporate Subdomain Validators
+const ADMIN_DOMAIN_REGEX = /^[a-zA-Z0-9._%+-]+@admin\.nexus\.in$/i;
+const EMP_DOMAIN_REGEX = /^[a-zA-Z0-9._%+-]+@emp\.nexus\.in$/i;
 
-// SIGNUP
-router.post('/register', async function (req, res) {
+// 1. Provision Corporate Account (Admin ONLY)
+router.post('/provision', authenticate, authorizeRoles('Admin'), async (req, res) => {
   try {
-    var name = req.body.name;
-    var email = req.body.email;
-    var password = req.body.password;
-    var role = req.body.role;
+    const { name, email, password, role } = req.body;
 
-    // 1. Presence and length checks
     if (!name || !email || !password) {
-      return res.status(400).json({ message: 'All fields are required' });
+      return res.status(400).json({ message: 'Name, corporate email, and temporary password are required.' });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    const assignedRole = role === 'Admin' ? 'Admin' : 'Member';
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Domain Policy Enforcement
+    if (assignedRole === 'Admin' && !ADMIN_DOMAIN_REGEX.test(normalizedEmail)) {
+      return res.status(400).json({
+        message: 'Admin accounts must use the @admin.nexus.in domain (e.g., username@admin.nexus.in).'
+      });
     }
 
-    // 2. Normalize email
-    var normalizedEmail = email.trim().toLowerCase();
+    if (assignedRole === 'Member' && !EMP_DOMAIN_REGEX.test(normalizedEmail)) {
+      return res.status(400).json({
+        message: 'Employee accounts must use the @emp.nexus.in domain (e.g., username@emp.nexus.in).'
+      });
+    }
 
-    var existingUser = await User.findOne({ email: normalizedEmail });
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email already registered' });
+      return res.status(409).json({ message: 'An employee account with this email already exists.' });
     }
 
-    // 3. Hash password
-    var hashedPassword = await bcrypt.hash(password, 10);
-
-    // 4. Validate role against schema enum ['Admin', 'Member']
-    var userRole = (role === 'Admin') ? 'Admin' : 'Member';
-
-    var user = await User.create({
-      name: name.trim(),
+    const newUser = await User.create({
+      name,
       email: normalizedEmail,
-      password: hashedPassword,
-      role: userRole
+      password,
+      role: assignedRole
     });
 
     return res.status(201).json({
-      message: 'Account created successfully',
+      message: 'Account provisioned successfully.',
       user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role
       }
     });
   } catch (error) {
-    console.error('Registration error:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    console.error('Provisioning error:', error);
+    return res.status(500).json({ message: 'Internal server error.' });
   }
 });
 
-// LOGIN
-router.post('/login', async function (req, res) {
+// 2. Corporate Sign In (Universal Entrypoint)
+router.post('/login', async (req, res) => {
   try {
-    var email = req.body.email;
-    var password = req.body.password;
+    const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+      return res.status(400).json({ message: 'Corporate email and password are required.' });
     }
 
-    var normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
 
-    var user = await User.findOne({ email: normalizedEmail });
+    // Basic Domain Structure Verification
+    if (!ADMIN_DOMAIN_REGEX.test(normalizedEmail) && !EMP_DOMAIN_REGEX.test(normalizedEmail)) {
+      return res.status(400).json({
+        message: 'Invalid domain. Email must end with @admin.nexus.in or @emp.nexus.in.'
+      });
+    }
+
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid corporate credentials.' });
     }
 
-    var passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid corporate credentials.' });
     }
 
-    var secret = process.env.JWT_SECRET || 'workspace_jwt_secret_key';
-
-    var token = jwt.sign(
+    const token = jwt.sign(
       { id: user._id, role: user.role },
-      secret,
-      { expiresIn: '1d' }
+      process.env.JWT_SECRET || 'nexus_super_secret_key',
+      { expiresIn: '7d' }
     );
 
-    return res.status(200).json({
-      message: 'Login successful',
-      token: token,
+    return res.json({
+      token,
       user: {
         id: user._id,
         name: user.name,
@@ -100,7 +105,7 @@ router.post('/login', async function (req, res) {
     });
   } catch (error) {
     console.error('Login error:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error.' });
   }
 });
 
