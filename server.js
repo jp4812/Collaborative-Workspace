@@ -15,6 +15,11 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static frontend from public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Root route redirect to Corporate Sign In
+app.get('/', (req, res) => {
+    res.redirect('/signin.html');
+});
+
 // API Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/workspaces', require('./routes/workspaceRoutes'));

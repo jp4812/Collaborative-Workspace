@@ -20,6 +20,7 @@ if (isAdmin) {
     document.getElementById('adminCreateWorkspaceCard')?.classList.remove('hidden');
     document.getElementById('adminCreateEmployeeCard')?.classList.remove('hidden');
     document.getElementById('adminConsoleLink')?.classList.remove('hidden');
+    document.getElementById('navAnalyticsLink')?.classList.remove('hidden');
 }
 
 // Logout Handler
@@ -210,8 +211,8 @@ async function fetchTasks(workspaceId) {
 
             const adminActions = isAdmin ? `
                 <div class="flex items-center space-x-1">
-                  <button onclick="openEditModal('${task._id}')" class="text-gray-400 hover:text-indigo-600 p-1 text-xs" title="Edit Task">✎</button>
-                  <button onclick="deleteTask('${task._id}')" class="text-gray-400 hover:text-red-600 p-1 text-xs" title="Delete Task">✕</button>
+                  <button onclick="openEditModal('${task._id}')" class="text-gray-400 hover:text-indigo-600 p-1 text-xs" title="Edit Task"><i class="bi bi-pencil-square"></i></button>
+                  <button onclick="deleteTask('${task._id}')" class="text-gray-400 hover:text-red-600 p-1 text-xs" title="Delete Task"><i class="bi bi-trash"></i></button>
                 </div>
             ` : '';
 
@@ -226,7 +227,7 @@ async function fetchTasks(workspaceId) {
                 ${task.description ? `<p class="text-xs text-gray-500">${task.description}</p>` : ''}
                 <div class="flex items-center justify-between pt-2 border-t border-gray-100 text-xs">
                   <span class="px-2 py-0.5 rounded font-medium ${priorityColor}">${task.priority}</span>
-                  <span class="text-gray-600 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded">👤 ${assigneeName}</span>
+                  <span class="text-gray-600 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded flex items-center"><i class="bi bi-person mr-1 text-gray-400"></i> ${assigneeName}</span>
                 </div>
             `;
 

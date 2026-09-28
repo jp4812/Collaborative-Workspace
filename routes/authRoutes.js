@@ -110,7 +110,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.get('/users', authenticate, authorizeRoles('Admin'), async (req, res) => {
+router.get('/users', authenticate, async (req, res) => {
   try {
     const users = await User.find({}, '-password').sort({ createdAt: -1 });
     res.json({ users });

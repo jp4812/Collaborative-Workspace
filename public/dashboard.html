@@ -6,18 +6,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus - Collaborative Workspace</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <body class="bg-gray-100 min-h-screen text-gray-800">
 
     <!-- Top Navigation Bar -->
-    <nav class="bg-white shadow-sm px-6 py-4 flex justify-between items-center border-b border-gray-200">
-        <div class="flex items-center space-x-3">
-            <span class="text-xl font-extrabold tracking-tight text-indigo-600">Nexus</span>
+    <nav class="bg-white shadow-sm px-6 py-3.5 flex justify-between items-center border-b border-gray-200 sticky top-0 z-30">
+        <div class="flex items-center space-x-6">
+            <a href="/dashboard.html" class="flex items-center space-x-2.5">
+                <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-extrabold text-sm shadow">
+                    N
+                </div>
+                <span class="text-xl font-extrabold tracking-tight text-indigo-600">Nexus</span>
+            </a>
+
+            <!-- Central Navigation Links -->
+            <div class="hidden sm:flex items-center space-x-1">
+                <a href="/dashboard.html"
+                    class="px-3 py-1.5 rounded-md text-sm font-semibold bg-indigo-50 text-indigo-700 transition">
+                    Board
+                </a>
+                <a href="/analytics.html" id="navAnalyticsLink"
+                    class="hidden px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition">
+                    Analytics
+                </a>
+                <a href="/members.html"
+                    class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition">
+                    Team Directory
+                </a>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
             <span id="userRoleBadge"
                 class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-800"></span>
-        </div>
-        <div class="flex items-center space-x-4">
             <span id="userName" class="text-sm font-medium text-gray-600"></span>
             <button id="logoutBtn"
                 class="text-sm bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-md font-medium transition">
@@ -229,7 +252,7 @@
         <div class="bg-white w-full max-w-lg rounded-xl shadow-xl border border-gray-200 p-6 space-y-4">
             <div class="flex justify-between items-center border-b border-gray-100 pb-3">
                 <h3 class="text-lg font-bold text-gray-900">Edit Task Details</h3>
-                <button id="closeEditModalBtn" class="text-gray-400 hover:text-gray-600 text-lg font-bold">✕</button>
+                <button id="closeEditModalBtn" class="text-gray-400 hover:text-gray-600 text-sm font-bold flex items-center justify-center p-1"><i class="bi bi-x-lg"></i></button>
             </div>
 
             <form id="editTaskForm" class="space-y-4">
