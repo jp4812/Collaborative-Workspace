@@ -7,6 +7,7 @@ const { authenticate, authorizeRoles } = require('../middleware/auth');
 // Strict Corporate Subdomain Validators
 const ADMIN_DOMAIN_REGEX = /^[a-zA-Z0-9._%+-]+@admin\.nexus\.in$/i;
 const EMP_DOMAIN_REGEX = /^[a-zA-Z0-9._%+-]+@emp\.nexus\.in$/i;
+//here trailing i makes the test case -insensitive
 
 // 1. Provision Corporate Account (Admin ONLY)
 router.post('/provision', authenticate, authorizeRoles('Admin'), async (req, res) => {
@@ -106,6 +107,16 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     return res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
+router.get('/users', authenticate, authorizeRoles('Admin'), async (req, res) => {
+  try {
+    const users = await User.find({}, '-password').sort({ createdAt: -1 });
+    res.json({ users });
+  } catch (error) {
+    console.error('Fetch users error:', error);
+    res.status(500).json({ message: 'Internal server error while retrieving users.' });
   }
 });
 

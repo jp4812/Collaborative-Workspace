@@ -82,7 +82,7 @@ router.patch('/:id/status', authenticate, async (req, res) => {
         const task = await Task.findByIdAndUpdate(
             req.params.id,
             { status },
-            { new: true }
+            { returnDocument: true }
         ).populate('assignedTo', 'name email');
 
         if (!task) {

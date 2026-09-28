@@ -19,6 +19,7 @@ if (isAdmin) {
     roleBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-medium bg-purple-100 text-purple-800';
     document.getElementById('adminCreateWorkspaceCard')?.classList.remove('hidden');
     document.getElementById('adminCreateEmployeeCard')?.classList.remove('hidden');
+    document.getElementById('adminConsoleLink')?.classList.remove('hidden');
 }
 
 // Logout Handler
@@ -91,7 +92,6 @@ function selectWorkspace(ws) {
     taskBtn.classList.remove('hidden');
 
     if (isAdmin) {
-        // Admin: standard task creation
         taskBtn.textContent = '+ Add Task';
         taskBtn.className = 'bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-md transition';
         if (formHeader) formHeader.textContent = 'Create New Task';
@@ -101,7 +101,6 @@ function selectWorkspace(ws) {
         }
         if (assigneeWrapper) assigneeWrapper.classList.remove('hidden');
     } else {
-        // Employee / Member: log daily completed or progress work
         taskBtn.textContent = '+ Log Today\'s Work';
         taskBtn.className = 'bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-md transition';
         if (formHeader) formHeader.textContent = 'Log Daily Work / Progress';
@@ -109,11 +108,9 @@ function selectWorkspace(ws) {
             submitBtn.textContent = 'Post Daily Log';
             submitBtn.className = 'col-span-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded-md text-sm transition';
         }
-        // Auto-assigned to self, hides manual assignee dropdown
         if (assigneeWrapper) assigneeWrapper.classList.add('hidden');
     }
 
-    // Invite Member button restricted to Admin or Workspace Owner
     const isOwner = ws.owner && (ws.owner._id === user.id || ws.owner === user.id);
     if (isAdmin || isOwner) {
         document.getElementById('openMemberModalBtn')?.classList.remove('hidden');
@@ -194,6 +191,7 @@ async function fetchTasks(workspaceId) {
             card.id = `task-${task._id}`;
             card.dataset.taskId = task._id;
             card.dataset.status = task.status;
+            card.ondragstart = dragstartHandler;
 
             card.className = 'bg-white p-3 rounded-lg border border-gray-200 shadow-sm cursor-grab active:cursor-grabbing hover:border-indigo-300 transition duration-150 space-y-2 select-none';
 
@@ -210,7 +208,6 @@ async function fetchTasks(workspaceId) {
                 ? (task.assignedTo.name || task.assignedTo.email)
                 : 'Unassigned';
 
-            // RBAC: Edit and Delete buttons render ONLY for Admins
             const adminActions = isAdmin ? `
                 <div class="flex items-center space-x-1">
                   <button onclick="openEditModal('${task._id}')" class="text-gray-400 hover:text-indigo-600 p-1 text-xs" title="Edit Task">✎</button>
@@ -233,9 +230,6 @@ async function fetchTasks(workspaceId) {
                 </div>
             `;
 
-            card.addEventListener('dragstart', handleDragStart);
-            card.addEventListener('dragend', handleDragEnd);
-
             if (task.status === 'In Progress') {
                 colInProgress.appendChild(card);
             } else if (task.status === 'Completed') {
@@ -254,76 +248,69 @@ async function fetchTasks(workspaceId) {
     }
 }
 
-// Native HTML5 Drag and Drop Handlers
-let draggedCard = null;
+// ----------------- Clean HTML5 Drag and Drop Handlers -----------------
 
-function handleDragStart(e) {
-    draggedCard = this;
-    this.classList.add('opacity-40');
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', this.dataset.taskId);
+function dragstartHandler(ev) {
+    ev.dataTransfer.setData("text/plain", ev.target.id);
 }
 
-function handleDragEnd() {
-    this.classList.remove('opacity-40');
-    draggedCard = null;
-    document.querySelectorAll('.kanban-col > div[id^="col-"]').forEach((col) => {
-        col.classList.remove('bg-indigo-50/50', 'ring-2', 'ring-indigo-300');
-    });
+function dragoverHandler(ev) {
+    ev.preventDefault();
 }
 
+async function dropHandler(ev) {
+    ev.preventDefault();
+
+    const cardId = ev.dataTransfer.getData("text/plain");
+    const cardElement = document.getElementById(cardId);
+    if (!cardElement) return;
+
+    // Find the target dropzone column container
+    const dropzone = ev.target.closest('.kanban-col-container') || ev.target.closest('[id^="col-"]');
+    if (!dropzone) return;
+
+    dropzone.appendChild(cardElement);
+
+    const parentCol = dropzone.closest('.kanban-col');
+    const newStatus = parentCol ? parentCol.dataset.status : null;
+    const taskId = cardElement.dataset.taskId;
+
+    if (!newStatus || cardElement.dataset.status === newStatus) return;
+
+    cardElement.dataset.status = newStatus;
+
+    try {
+        const res = await fetch(`/api/tasks/${taskId}/status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (!res.ok) throw new Error('Status update failed');
+        fetchTasks(activeWorkspaceId);
+    } catch (err) {
+        console.error('Status sync error:', err);
+        fetchTasks(activeWorkspaceId);
+    }
+}
+
+// Initialize Dropzones (attaches dragover and drop to columns)
 function initKanbanDropzones() {
     const columns = document.querySelectorAll('.kanban-col');
-
     columns.forEach((col) => {
         const targetContainer = col.querySelector('div[id^="col-"]');
-        const newStatus = col.dataset.status;
-
-        targetContainer.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            targetContainer.classList.add('bg-indigo-50/50', 'ring-2', 'ring-indigo-300');
-        });
-
-        targetContainer.addEventListener('dragleave', () => {
-            targetContainer.classList.remove('bg-indigo-50/50', 'ring-2', 'ring-indigo-300');
-        });
-
-        targetContainer.addEventListener('drop', async (e) => {
-            e.preventDefault();
-            targetContainer.classList.remove('bg-indigo-50/50', 'ring-2', 'ring-indigo-300');
-
-            if (!draggedCard) return;
-
-            const taskId = draggedCard.dataset.taskId;
-            const prevStatus = draggedCard.dataset.status;
-
-            if (prevStatus === newStatus) return;
-
-            targetContainer.appendChild(draggedCard);
-            draggedCard.dataset.status = newStatus;
-
-            try {
-                const res = await fetch(`/api/tasks/${taskId}/status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + token
-                    },
-                    body: JSON.stringify({ status: newStatus })
-                });
-
-                if (!res.ok) throw new Error('Status update failed');
-                fetchTasks(activeWorkspaceId);
-            } catch (err) {
-                console.error('Status sync error:', err);
-                fetchTasks(activeWorkspaceId);
-            }
-        });
+        if (targetContainer) {
+            targetContainer.ondragover = dragoverHandler;
+            targetContainer.ondrop = dropHandler;
+        }
     });
 }
 
-// Edit Modal Logic (Admin Only)
+// ----------------- Edit Modal Logic (Admin Only) -----------------
+
 window.openEditModal = function (taskId) {
     const task = currentTasksCache.find((t) => t._id === taskId);
     if (!task) return;
@@ -491,9 +478,8 @@ document.getElementById('createTaskForm').addEventListener('submit', async (e) =
     let title = document.getElementById('taskTitle').value.trim();
     const description = document.getElementById('taskDesc').value.trim();
     const priority = document.getElementById('taskPriority').value;
-    const status = document.getElementById('taskStatus').value; // User-selected status column
+    const status = document.getElementById('taskStatus').value;
 
-    // If Employee, auto-assign to self and prepend today's date tag
     let assignedTo = null;
     if (!isAdmin) {
         const todayStr = new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
