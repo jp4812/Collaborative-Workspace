@@ -4,76 +4,99 @@ const Task = require('../models/Task');
 const Workspace = require('../models/Workspace');
 const { authenticate } = require('../middleware/auth');
 
-// 1. Create a task (Admin or Workspace Members)
-router.post('/', authenticate, async (req, res) => {
-    try {
-        const { title, description, priority, workspace, assignedTo } = req.body;
-
-        if (!title || !workspace) {
-            return res.status(400).json({ message: 'Task title and workspace ID are required.' });
-        }
-
-        const ws = await Workspace.findById(workspace);
-        if (!ws) {
-            return res.status(404).json({ message: 'Workspace not found.' });
-        }
-
-        const isMember = ws.members.some((m) => m.toString() === req.user.id);
-        if (ws.owner.toString() !== req.user.id && !isMember && req.user.role !== 'Admin') {
-            return res.status(403).json({ message: 'Access denied to this workspace.' });
-        }
-
-        const task = await Task.create({
-            title,
-            description,
-            priority: priority || 'Medium',
-            workspace,
-            assignedTo: assignedTo || null,
-            createdBy: req.user.id
-        });
-
-        const populatedTask = await Task.findById(task._id)
-            .populate('assignedTo', 'name email')
-            .populate('createdBy', 'name email');
-
-        return res.status(201).json({
-            message: 'Task created successfully.',
-            task: populatedTask
-        });
-    } catch (error) {
-        console.error('Create task error:', error);
-        return res.status(500).json({ message: 'Internal server error.' });
-    }
-});
-
-// 2. Fetch all tasks for a workspace
+// 1. Get all tasks for a workspace
 router.get('/workspace/:workspaceId', authenticate, async (req, res) => {
     try {
         const { workspaceId } = req.params;
 
-        const ws = await Workspace.findById(workspaceId);
-        if (!ws) {
+        const workspace = await Workspace.findById(workspaceId);
+        if (!workspace) {
             return res.status(404).json({ message: 'Workspace not found.' });
         }
 
-        const isMember = ws.members.some((m) => m.toString() === req.user.id);
-        if (ws.owner.toString() !== req.user.id && !isMember && req.user.role !== 'Admin') {
+        const isMember = workspace.members.some(m => m.toString() === req.user.id);
+        const isOwner = workspace.owner.toString() === req.user.id;
+        const isAdmin = req.user.role === 'Admin';
+
+        if (!isMember && !isOwner && !isAdmin) {
             return res.status(403).json({ message: 'Access denied to this workspace.' });
         }
 
         const tasks = await Task.find({ workspace: workspaceId })
-            .populate('assignedTo', 'name email')
-            .populate('createdBy', 'name email')
-            .sort({ createdAt: -1 });
+            .populate('assignedTo', 'name email role')
+            .populate('createdBy', 'name email');
 
-        return res.json({ tasks });
+        res.json({ tasks });
     } catch (error) {
         console.error('Fetch tasks error:', error);
-        return res.status(500).json({ message: 'Internal server error.' });
+        res.status(500).json({ message: 'Failed to retrieve workspace tasks.' });
     }
 });
 
-// 3. Edit task details (Admin or Workspace Owner ONLY)
+// 2. Create Task or Log Daily Work
+router.post('/', authenticate, async (req, res) => {
+    try {
+        const { title, description, priority, assignedTo, workspace, status } = req.body;
+
+        if (!title || !workspace) {
+            return res.status(400).json({ message: 'Title and workspace ID are required.' });
+        }
+
+        const targetWorkspace = await Workspace.findById(workspace);
+        if (!targetWorkspace) {
+            return res.status(404).json({ message: 'Workspace not found.' });
+        }
+
+        const validAssignee = assignedTo && assignedTo.trim() !== '' ? assignedTo : null;
+
+        const newTask = await Task.create({
+            title,
+            description,
+            priority: priority || 'Medium',
+            assignedTo: validAssignee,
+            workspace,
+            createdBy: req.user.id,
+            status: status || 'To Do'
+        });
+
+        const populatedTask = await Task.findById(newTask._id)
+            .populate('assignedTo', 'name email role');
+
+        res.status(201).json(populatedTask);
+    } catch (error) {
+        console.error('Task creation error:', error);
+        res.status(500).json({ message: 'Failed to create task.' });
+    }
+});
+
+// 3. Update Task Status (Drag and Drop)
+router.patch('/:id/status', authenticate, async (req, res) => {
+    try {
+        const { status } = req.body;
+        const validStatuses = ['To Do', 'In Progress', 'Completed'];
+
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ message: 'Invalid task status.' });
+        }
+
+        const task = await Task.findByIdAndUpdate(
+            req.params.id,
+            { status },
+            { new: true }
+        ).populate('assignedTo', 'name email');
+
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found.' });
+        }
+
+        res.json(task);
+    } catch (error) {
+        console.error('Update status error:', error);
+        res.status(500).json({ message: 'Failed to update task status.' });
+    }
+});
+
+// 4. Update Task Details (Admin or Workspace Owner Only)
 router.put('/:id', authenticate, async (req, res) => {
     try {
         const { title, description, priority, assignedTo } = req.body;
@@ -83,61 +106,32 @@ router.put('/:id', authenticate, async (req, res) => {
             return res.status(404).json({ message: 'Task not found.' });
         }
 
-        const ws = await Workspace.findById(task.workspace);
-        const isOwner = ws && ws.owner.toString() === req.user.id;
+        const workspace = await Workspace.findById(task.workspace);
+        const isOwner = workspace && workspace.owner.toString() === req.user.id;
         const isAdmin = req.user.role === 'Admin';
 
         if (!isOwner && !isAdmin) {
-            return res.status(403).json({ message: 'Access denied: Only Admins or Workspace Owners can edit task details.' });
+            return res.status(403).json({ message: 'Only Admins or Workspace Owners can edit task details.' });
         }
 
-        if (title) task.title = title;
-        if (description !== undefined) task.description = description;
-        if (priority) task.priority = priority;
-        task.assignedTo = assignedTo || null;
+        const validAssignee = assignedTo && assignedTo.trim() !== '' ? assignedTo : null;
+
+        task.title = title || task.title;
+        task.description = description !== undefined ? description : task.description;
+        task.priority = priority || task.priority;
+        task.assignedTo = validAssignee;
 
         await task.save();
 
-        const populatedTask = await Task.findById(task._id)
-            .populate('assignedTo', 'name email')
-            .populate('createdBy', 'name email');
-
-        return res.json({
-            message: 'Task updated successfully.',
-            task: populatedTask
-        });
+        const updatedTask = await Task.findById(task._id).populate('assignedTo', 'name email');
+        res.json(updatedTask);
     } catch (error) {
-        console.error('Edit task error:', error);
-        return res.status(500).json({ message: 'Internal server error.' });
+        console.error('Update task error:', error);
+        res.status(500).json({ message: 'Failed to edit task.' });
     }
 });
 
-// 4. Update task status (Employees and Admins can Drag & Drop)
-router.patch('/:id/status', authenticate, async (req, res) => {
-    try {
-        const { status } = req.body;
-        const allowed = ['To Do', 'In Progress', 'Completed'];
-
-        if (!allowed.includes(status)) {
-            return res.status(400).json({ message: 'Invalid status value.' });
-        }
-
-        const task = await Task.findById(req.params.id);
-        if (!task) {
-            return res.status(404).json({ message: 'Task not found.' });
-        }
-
-        task.status = status;
-        await task.save();
-
-        return res.json({ message: 'Status updated successfully.', task });
-    } catch (error) {
-        console.error('Status update error:', error);
-        return res.status(500).json({ message: 'Internal server error.' });
-    }
-});
-
-// 5. Delete task (Admin or Workspace Owner ONLY)
+// 5. Delete Task (Admin or Workspace Owner Only)
 router.delete('/:id', authenticate, async (req, res) => {
     try {
         const task = await Task.findById(req.params.id);
@@ -145,19 +139,19 @@ router.delete('/:id', authenticate, async (req, res) => {
             return res.status(404).json({ message: 'Task not found.' });
         }
 
-        const ws = await Workspace.findById(task.workspace);
-        const isOwner = ws && ws.owner.toString() === req.user.id;
+        const workspace = await Workspace.findById(task.workspace);
+        const isOwner = workspace && workspace.owner.toString() === req.user.id;
         const isAdmin = req.user.role === 'Admin';
 
         if (!isOwner && !isAdmin) {
-            return res.status(403).json({ message: 'Access denied: Only Admins or Workspace Owners can delete tasks.' });
+            return res.status(403).json({ message: 'Only Admins or Workspace Owners can delete tasks.' });
         }
 
         await Task.findByIdAndDelete(req.params.id);
-        return res.json({ message: 'Task deleted successfully.', taskId: req.params.id });
+        res.json({ message: 'Task deleted successfully.' });
     } catch (error) {
         console.error('Delete task error:', error);
-        return res.status(500).json({ message: 'Internal server error.' });
+        res.status(500).json({ message: 'Failed to delete task.' });
     }
 });
 

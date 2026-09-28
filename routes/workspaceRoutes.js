@@ -21,7 +21,7 @@ router.post('/', authenticate, authorizeRoles('Admin'), async (req, res) => {
         });
 
         const populatedWorkspace = await Workspace.findById(workspace._id)
-            .populate('owner', 'name email')
+            .populate('owner', 'name email role')
             .populate('members', 'name email role');
 
         return res.status(201).json({
@@ -40,7 +40,7 @@ router.get('/', authenticate, async (req, res) => {
         const workspaces = await Workspace.find({
             $or: [{ owner: req.user.id }, { members: req.user.id }]
         })
-            .populate('owner', 'name email')
+            .populate('owner', 'name email role')
             .populate('members', 'name email role');
 
         return res.json({ workspaces });
@@ -88,7 +88,7 @@ router.post('/:id/members', authenticate, async (req, res) => {
         await workspace.save();
 
         const updatedWorkspace = await Workspace.findById(workspaceId)
-            .populate('owner', 'name email')
+            .populate('owner', 'name email role')
             .populate('members', 'name email role');
 
         return res.json({

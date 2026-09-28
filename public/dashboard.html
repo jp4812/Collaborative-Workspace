@@ -32,7 +32,7 @@
         <!-- Left Column: Workspaces & Admin Operations -->
         <section class="md:col-span-1 space-y-6">
 
-            <!-- Provision Employee Account (Visible ONLY to Admin) -->
+            <!-- Provision Employee Account (Admin Only) -->
             <div id="adminCreateEmployeeCard" class="bg-white p-5 rounded-lg shadow-sm border border-purple-100 hidden">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-purple-700 mb-3">Provision Employee</h2>
                 <form id="createEmployeeForm" class="space-y-3">
@@ -63,7 +63,7 @@
                 <p id="empMsg" class="text-xs mt-2 hidden"></p>
             </div>
 
-            <!-- Create Workspace Card (Visible ONLY to Admin) -->
+            <!-- Create Workspace Card (Admin Only) -->
             <div id="adminCreateWorkspaceCard"
                 class="bg-white p-5 rounded-lg shadow-sm border border-indigo-100 hidden">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-700 mb-3">Create Workspace</h2>
@@ -113,8 +113,7 @@
                             class="hidden bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium px-3 py-2 rounded-md transition">
                             + Invite Member
                         </button>
-                        <button id="openTaskFormBtn"
-                            class="hidden bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-md transition">
+                        <button id="openTaskFormBtn" class="hidden text-sm font-medium px-4 py-2 rounded-md transition">
                             + Add Task
                         </button>
                     </div>
@@ -135,13 +134,17 @@
                 </div>
             </div>
 
-            <!-- Collapsible Task Creation Form -->
+            <!-- Collapsible Task / Daily Work Form -->
             <div id="addTaskSection" class="bg-white p-5 rounded-lg shadow-sm border border-gray-200 hidden">
-                <h3 class="text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">Create New Task</h3>
+                <h3 id="taskSectionHeader" class="text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">Create
+                    New Task</h3>
                 <form id="createTaskForm" class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <input type="text" id="taskTitle" placeholder="Task title" required
+
+                    <!-- Title Input -->
+                    <input type="text" id="taskTitle" placeholder="Task title / What did you work on today?" required
                         class="col-span-2 px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
 
+                    <!-- Priority Selector -->
                     <select id="taskPriority"
                         class="px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
                         <option value="Low">Low Priority</option>
@@ -149,22 +152,36 @@
                         <option value="High">High Priority</option>
                     </select>
 
-                    <select id="taskAssignee"
+                    <!-- Status Selector (Preserves selected status column) -->
+                    <select id="taskStatus"
                         class="px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                        <option value="">Unassigned</option>
+                        <option value="To Do">Status: To Do</option>
+                        <option value="In Progress" selected>Status: In Progress</option>
+                        <option value="Completed">Status: Completed</option>
                     </select>
 
-                    <input type="text" id="taskDesc" placeholder="Task description (optional)"
-                        class="col-span-3 px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <!-- Assignee (Visible for Admin, Auto-hidden for Employee) -->
+                    <div id="assigneeWrapper" class="col-span-1">
+                        <select id="taskAssignee"
+                            class="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                            <option value="">Unassigned</option>
+                        </select>
+                    </div>
 
-                    <button type="submit"
-                        class="col-span-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded-md text-sm transition">
+                    <!-- Description -->
+                    <input type="text" id="taskDesc"
+                        placeholder="Brief summary of work / context / blockers (optional)..."
+                        class="col-span-2 px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="submitTaskBtn"
+                        class="col-span-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-md text-sm transition">
                         Save Task
                     </button>
                 </form>
             </div>
 
-            <!-- Kanban Columns (HTML5 Drag & Drop) -->
+            <!-- Kanban Columns -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="kanbanBoard">
 
                 <!-- To Do Column -->
