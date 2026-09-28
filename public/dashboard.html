@@ -5,8 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus - Collaborative Workspace</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style type="text/tailwindcss">
+        @theme {
+            --color-primary: #4f46e5;
+            --color-primary-hover: #4338ca;
+            --color-primary-light: #eef2ff;
+            --color-purple: #9333ea;
+            --color-purple-hover: #7e22ce;
+            --color-purple-light: #f3e8ff;
+            --color-emerald: #059669;
+            --color-emerald-hover: #047857;
+            --color-emerald-light: #d1fae5;
+            --color-danger: #dc2626;
+            --color-danger-light: #fef2f2;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100 min-h-screen text-gray-800">
@@ -22,30 +39,17 @@
             </a>
 
             <!-- Central Navigation Links -->
-            <div class="hidden sm:flex items-center space-x-1">
-                <a href="/dashboard.html"
-                    class="px-3 py-1.5 rounded-md text-sm font-semibold bg-indigo-50 text-indigo-700 transition">
-                    Board
-                </a>
-                <a href="/analytics.html" id="navAnalyticsLink"
-                    class="hidden px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition">
-                    Analytics
-                </a>
-                <a href="/members.html"
-                    class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition">
-                    Team Directory
-                </a>
+            <div class="flex items-center space-x-1">
+                <a href="/dashboard.html" class="nav-link-active">Board</a>
+                <a href="/analytics.html" id="navAnalyticsLink" class="nav-link hidden">Analytics</a>
+                <a href="/members.html" class="nav-link">Team Directory</a>
             </div>
         </div>
 
         <div class="flex items-center space-x-4">
-            <span id="userRoleBadge"
-                class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-800"></span>
+            <span id="userRoleBadge" class="badge badge-gray"></span>
             <span id="userName" class="text-sm font-medium text-gray-600"></span>
-            <button id="logoutBtn"
-                class="text-sm bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-md font-medium transition">
-                Logout
-            </button>
+            <button id="logoutBtn" class="btn-danger-light">Logout</button>
         </div>
     </nav>
 
@@ -55,64 +59,27 @@
         <!-- Left Column: Workspaces & Admin Operations -->
         <section class="md:col-span-1 space-y-6">
 
-            <!-- Provision Employee Account (Admin Only) -->
-            <div id="adminCreateEmployeeCard" class="bg-white p-5 rounded-lg shadow-sm border border-purple-100 hidden">
-                <h2 class="text-xs font-bold uppercase tracking-wider text-purple-700 mb-3">Provision Employee</h2>
-                <form id="createEmployeeForm" class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Full Name</label>
-                        <input type="text" id="empName" required
-                            class="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                            placeholder="e.g. Rahul Sharma">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Corporate Email
-                            (@emp.nexus.in)</label>
-                        <input type="email" id="empEmail" required
-                            class="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                            placeholder="rahul@emp.nexus.in">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Initial Password</label>
-                        <input type="password" id="empPassword" required
-                            class="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                            placeholder="••••••••">
-                    </div>
-                    <button type="submit"
-                        class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-md text-sm transition">
-                        Provision Account
-                    </button>
-                </form>
-                <p id="empMsg" class="text-xs mt-2 hidden"></p>
-            </div>
-
             <!-- Create Workspace Card (Admin Only) -->
-            <div id="adminCreateWorkspaceCard"
-                class="bg-white p-5 rounded-lg shadow-sm border border-indigo-100 hidden">
-                <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-700 mb-3">Create Workspace</h2>
+            <div id="adminCreateWorkspaceCard" class="card border-indigo-100 hidden">
+                <h2 class="section-heading text-indigo-700">Create Workspace</h2>
                 <form id="createWorkspaceForm" class="space-y-3">
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Workspace Name</label>
-                        <input type="text" id="wsName" required
-                            class="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                            placeholder="e.g. Core Engineering">
+                        <label class="form-label-regular">Workspace Name</label>
+                        <input type="text" id="wsName" required class="form-input" placeholder="e.g. Core Engineering">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Description</label>
-                        <textarea id="wsDesc" rows="2"
-                            class="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                            placeholder="Goals & deliverables..."></textarea>
+                        <label class="form-label-regular">Description</label>
+                        <textarea id="wsDesc" rows="2" class="form-textarea" placeholder="Goals & deliverables..."></textarea>
                     </div>
-                    <button type="submit"
-                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-md text-sm transition">
+                    <button type="submit" class="btn btn-primary w-full">
                         + Create Workspace
                     </button>
                 </form>
             </div>
 
             <!-- Workspaces List -->
-            <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-                <h2 class="text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">Your Workspaces</h2>
+            <div class="card">
+                <h2 class="section-heading">Your Workspaces</h2>
                 <div id="workspaceList" class="space-y-2">
                     <p class="text-sm text-gray-500">Loading workspaces...</p>
                 </div>
@@ -124,19 +91,17 @@
         <section class="md:col-span-2 space-y-6">
 
             <!-- Workspace Header -->
-            <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+            <div class="card">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h1 id="currentWorkspaceTitle" class="text-xl font-bold text-gray-900">Select a Workspace</h1>
-                        <p id="currentWorkspaceDesc" class="text-sm text-gray-500">Choose a workspace from the left to
-                            inspect its board.</p>
+                        <h1 id="currentWorkspaceTitle" class="page-heading">Select a Workspace</h1>
+                        <p id="currentWorkspaceDesc" class="page-subheading">Choose a workspace from the left to inspect its board.</p>
                     </div>
                     <div class="flex items-center space-x-2" id="workspaceActionButtons">
-                        <button id="openMemberModalBtn"
-                            class="hidden bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium px-3 py-2 rounded-md transition">
+                        <button id="openMemberModalBtn" class="btn btn-secondary btn-sm hidden">
                             + Invite Member
                         </button>
-                        <button id="openTaskFormBtn" class="hidden text-sm font-medium px-4 py-2 rounded-md transition">
+                        <button id="openTaskFormBtn" class="btn btn-primary hidden">
                             + Add Task
                         </button>
                     </div>
@@ -147,9 +112,8 @@
                     <form id="inviteMemberForm" class="flex gap-2">
                         <input type="email" id="inviteEmail" required
                             placeholder="Employee email (e.g. rahul@emp.nexus.in)..."
-                            class="flex-1 px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                        <button type="submit"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-md font-medium transition">
+                            class="form-input flex-1">
+                        <button type="submit" class="btn btn-primary">
                             Invite
                         </button>
                     </form>
@@ -158,47 +122,35 @@
             </div>
 
             <!-- Collapsible Task / Daily Work Form -->
-            <div id="addTaskSection" class="bg-white p-5 rounded-lg shadow-sm border border-gray-200 hidden">
-                <h3 id="taskSectionHeader" class="text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">Create
-                    New Task</h3>
+            <div id="addTaskSection" class="card hidden">
+                <h3 id="taskSectionHeader" class="section-heading mb-3">Create New Task</h3>
                 <form id="createTaskForm" class="grid grid-cols-1 md:grid-cols-4 gap-3">
-
-                    <!-- Title Input -->
                     <input type="text" id="taskTitle" placeholder="Task title / What did you work on today?" required
-                        class="col-span-2 px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        class="form-input col-span-2">
 
-                    <!-- Priority Selector -->
-                    <select id="taskPriority"
-                        class="px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                    <select id="taskPriority" class="form-select">
                         <option value="Low">Low Priority</option>
                         <option value="Medium" selected>Medium Priority</option>
                         <option value="High">High Priority</option>
                     </select>
 
-                    <!-- Status Selector (Preserves selected status column) -->
-                    <select id="taskStatus"
-                        class="px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                    <select id="taskStatus" class="form-select">
                         <option value="To Do">Status: To Do</option>
                         <option value="In Progress" selected>Status: In Progress</option>
                         <option value="Completed">Status: Completed</option>
                     </select>
 
-                    <!-- Assignee (Visible for Admin, Auto-hidden for Employee) -->
                     <div id="assigneeWrapper" class="col-span-1">
-                        <select id="taskAssignee"
-                            class="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                        <select id="taskAssignee" class="form-select">
                             <option value="">Unassigned</option>
                         </select>
                     </div>
 
-                    <!-- Description -->
                     <input type="text" id="taskDesc"
                         placeholder="Brief summary of work / context / blockers (optional)..."
-                        class="col-span-2 px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        class="form-input col-span-2">
 
-                    <!-- Submit Button -->
-                    <button type="submit" id="submitTaskBtn"
-                        class="col-span-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-md text-sm transition">
+                    <button type="submit" id="submitTaskBtn" class="btn btn-primary col-span-1">
                         Save Task
                     </button>
                 </form>
@@ -212,8 +164,7 @@
                     data-status="To Do">
                     <div class="flex items-center justify-between mb-3 px-1">
                         <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">To Do</h3>
-                        <span id="count-todo"
-                            class="text-xs bg-gray-200 text-gray-700 font-semibold px-2 py-0.5 rounded-full">0</span>
+                        <span id="count-todo" class="badge badge-gray">0</span>
                     </div>
                     <div id="col-todo" class="space-y-3 min-h-[380px] transition-colors rounded-md p-1"></div>
                 </div>
@@ -223,8 +174,7 @@
                     data-status="In Progress">
                     <div class="flex items-center justify-between mb-3 px-1">
                         <h3 class="text-xs font-bold text-indigo-700 uppercase tracking-wider">In Progress</h3>
-                        <span id="count-inprogress"
-                            class="text-xs bg-indigo-100 text-indigo-700 font-semibold px-2 py-0.5 rounded-full">0</span>
+                        <span id="count-inprogress" class="badge badge-indigo">0</span>
                     </div>
                     <div id="col-inprogress" class="space-y-3 min-h-[380px] transition-colors rounded-md p-1"></div>
                 </div>
@@ -234,8 +184,7 @@
                     data-status="Completed">
                     <div class="flex items-center justify-between mb-3 px-1">
                         <h3 class="text-xs font-bold text-green-700 uppercase tracking-wider">Completed</h3>
-                        <span id="count-completed"
-                            class="text-xs bg-green-100 text-green-700 font-semibold px-2 py-0.5 rounded-full">0</span>
+                        <span id="count-completed" class="badge badge-emerald">0</span>
                     </div>
                     <div id="col-completed" class="space-y-3 min-h-[380px] transition-colors rounded-md p-1"></div>
                 </div>
@@ -247,54 +196,46 @@
     </main>
 
     <!-- Edit Task Modal (Admin Only) -->
-    <div id="editTaskModal"
-        class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white w-full max-w-lg rounded-xl shadow-xl border border-gray-200 p-6 space-y-4">
-            <div class="flex justify-between items-center border-b border-gray-100 pb-3">
-                <h3 class="text-lg font-bold text-gray-900">Edit Task Details</h3>
-                <button id="closeEditModalBtn" class="text-gray-400 hover:text-gray-600 text-sm font-bold flex items-center justify-center p-1"><i class="bi bi-x-lg"></i></button>
+    <div id="editTaskModal" class="modal-backdrop hidden">
+        <div class="modal-box max-w-lg space-y-4">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Task Details</h3>
+                <button id="closeEditModalBtn" class="btn-close"><i class="bi bi-x-lg"></i></button>
             </div>
 
             <form id="editTaskForm" class="space-y-4">
                 <input type="hidden" id="editTaskId">
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Title</label>
-                    <input type="text" id="editTaskTitle" required
-                        class="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <label class="form-label">Title</label>
+                    <input type="text" id="editTaskTitle" required class="form-input">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Priority</label>
-                        <select id="editTaskPriority"
-                            class="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                        <label class="form-label">Priority</label>
+                        <select id="editTaskPriority" class="form-select">
                             <option value="Low">Low</option>
                             <option value="Medium">Medium</option>
                             <option value="High">High</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Assignee</label>
-                        <select id="editTaskAssignee"
-                            class="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                        <label class="form-label">Assignee</label>
+                        <select id="editTaskAssignee" class="form-select">
                             <option value="">Unassigned</option>
                         </select>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Description</label>
-                    <textarea id="editTaskDesc" rows="3"
-                        class="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                    <label class="form-label">Description</label>
+                    <textarea id="editTaskDesc" rows="3" class="form-textarea"></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-2 pt-2 border-t border-gray-100">
-                    <button type="button" id="cancelEditModalBtn"
-                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-50 transition">Cancel</button>
-                    <button type="submit"
-                        class="px-4 py-2 bg-indigo-600 text-white font-medium rounded-md text-sm hover:bg-indigo-700 transition">Save
-                        Changes</button>
+                    <button type="button" id="cancelEditModalBtn" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
             </form>
         </div>

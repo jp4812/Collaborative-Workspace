@@ -1,0 +1,36 @@
+/* ==========================================================================
+   Design Tokens & Theme Variables
+   Shared CSS Variables across Nexus Stylesheets & Tailwind Theme
+   ========================================================================== */
+
+:root {
+  /* Brand / Primary (Indigo) */
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-light: #eef2ff;
+  --color-primary-focus: rgba(99, 102, 241, 0.2);
+
+  /* Purple (Admin) */
+  --color-purple: #9333ea;
+  --color-purple-hover: #7e22ce;
+  --color-purple-light: #f3e8ff;
+  --color-purple-focus: rgba(168, 85, 247, 0.2);
+
+  /* Emerald (Employee / Success) */
+  --color-emerald: #059669;
+  --color-emerald-hover: #047857;
+  --color-emerald-light: #d1fae5;
+
+  /* Red / Danger */
+  --color-danger: #dc2626;
+  --color-danger-light: #fef2f2;
+  --color-danger-border: #fee2e2;
+
+  /* Neutrals & Borders */
+  --color-border: #e5e7eb;
+  --color-border-input: #d1d5db;
+  --color-bg-subtle: #f9fafb;
+
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}

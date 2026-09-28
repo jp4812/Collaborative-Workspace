@@ -17,9 +17,9 @@ document.getElementById('userName').textContent = user.name || user.email || 'Us
 const roleBadge = document.getElementById('userRoleBadge');
 roleBadge.textContent = user.role || 'Member';
 if (user.role === 'Admin') {
-    roleBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-medium bg-purple-100 text-purple-800';
+    roleBadge.className = 'badge badge-purple';
 } else {
-    roleBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-800';
+    roleBadge.className = 'badge badge-emerald';
 }
 
 // Logout
@@ -371,8 +371,8 @@ function renderTables(tasks) {
                 ? (t.assignedTo.name || t.assignedTo.email)
                 : 'Unassigned';
             const statusBadge = t.status === 'In Progress'
-                ? '<span class="px-2 py-0.5 text-[11px] rounded font-semibold bg-indigo-50 text-indigo-700">In Progress</span>'
-                : '<span class="px-2 py-0.5 text-[11px] rounded font-semibold bg-gray-100 text-gray-700">To Do</span>';
+                ? '<span class="badge badge-indigo">In Progress</span>'
+                : '<span class="badge badge-gray">To Do</span>';
 
             return `
                 <tr class="hover:bg-gray-50 transition">

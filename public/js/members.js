@@ -14,11 +14,11 @@ roleBadge.textContent = user.role || 'Member';
 const isAdmin = user.role === 'Admin';
 
 if (isAdmin) {
-    roleBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-medium bg-purple-100 text-purple-800';
+    roleBadge.className = 'badge badge-purple';
     document.getElementById('adminActionWrapper')?.classList.remove('hidden');
     document.getElementById('navAnalyticsLink')?.classList.remove('hidden');
 } else {
-    roleBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-800';
+    roleBadge.className = 'badge badge-emerald';
 }
 
 // Logout
@@ -122,8 +122,8 @@ function renderDirectoryGrid(users) {
     grid.innerHTML = users.map(u => {
         const isUserAdmin = u.role === 'Admin';
         const rolePill = isUserAdmin
-            ? '<span class="text-[11px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">Admin</span>'
-            : '<span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">Member</span>';
+            ? '<span class="badge badge-purple">Admin</span>'
+            : '<span class="badge badge-emerald">Member</span>';
 
         const avatarColor = isUserAdmin ? 'bg-purple-600' : 'bg-indigo-600';
         const initials = u.name ? u.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U';
@@ -146,7 +146,7 @@ function renderDirectoryGrid(users) {
         const joinDate = u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown';
 
         return `
-            <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition flex flex-col justify-between space-y-4">
+            <div class="card hover:border-indigo-300 hover:shadow-md transition flex flex-col justify-between space-y-4">
                 <div>
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-center space-x-3">

@@ -16,11 +16,12 @@ roleBadge.textContent = user.role || 'Member';
 const isAdmin = user.role === 'Admin';
 
 if (isAdmin) {
-    roleBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-medium bg-purple-100 text-purple-800';
+    roleBadge.className = 'badge badge-purple';
     document.getElementById('adminCreateWorkspaceCard')?.classList.remove('hidden');
-    document.getElementById('adminCreateEmployeeCard')?.classList.remove('hidden');
     document.getElementById('adminConsoleLink')?.classList.remove('hidden');
     document.getElementById('navAnalyticsLink')?.classList.remove('hidden');
+} else {
+    roleBadge.className = 'badge badge-emerald';
 }
 
 // Logout Handler
@@ -94,20 +95,20 @@ function selectWorkspace(ws) {
 
     if (isAdmin) {
         taskBtn.textContent = '+ Add Task';
-        taskBtn.className = 'bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-md transition';
+        taskBtn.className = 'btn btn-primary';
         if (formHeader) formHeader.textContent = 'Create New Task';
         if (submitBtn) {
             submitBtn.textContent = 'Save Task';
-            submitBtn.className = 'col-span-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-md text-sm transition';
+            submitBtn.className = 'btn btn-primary col-span-1';
         }
         if (assigneeWrapper) assigneeWrapper.classList.remove('hidden');
     } else {
         taskBtn.textContent = '+ Log Today\'s Work';
-        taskBtn.className = 'bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-md transition';
+        taskBtn.className = 'btn btn-emerald';
         if (formHeader) formHeader.textContent = 'Log Daily Work / Progress';
         if (submitBtn) {
             submitBtn.textContent = 'Post Daily Log';
-            submitBtn.className = 'col-span-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded-md text-sm transition';
+            submitBtn.className = 'btn btn-emerald col-span-1';
         }
         if (assigneeWrapper) assigneeWrapper.classList.add('hidden');
     }
@@ -211,8 +212,8 @@ async function fetchTasks(workspaceId) {
 
             const adminActions = isAdmin ? `
                 <div class="flex items-center space-x-1">
-                  <button onclick="openEditModal('${task._id}')" class="text-gray-400 hover:text-indigo-600 p-1 text-xs" title="Edit Task"><i class="bi bi-pencil-square"></i></button>
-                  <button onclick="deleteTask('${task._id}')" class="text-gray-400 hover:text-red-600 p-1 text-xs" title="Delete Task"><i class="bi bi-trash"></i></button>
+                  <button onclick="openEditModal('${task._id}')" class="btn-icon" title="Edit Task"><i class="bi bi-pencil-square"></i></button>
+                  <button onclick="deleteTask('${task._id}')" class="btn-icon btn-icon-danger" title="Delete Task"><i class="bi bi-trash"></i></button>
                 </div>
             ` : '';
 
@@ -339,6 +340,17 @@ const closeEditModal = () => {
 document.getElementById('closeEditModalBtn').addEventListener('click', closeEditModal);
 document.getElementById('cancelEditModalBtn').addEventListener('click', closeEditModal);
 
+const editModal = document.getElementById('editTaskModal');
+if (editModal) {
+    editModal.addEventListener('click', (e) => {
+        if (e.target === editModal) closeEditModal();
+    });
+}
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeEditModal();
+});
+
 document.getElementById('editTaskForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const taskId = document.getElementById('editTaskId').value;
@@ -395,43 +407,6 @@ window.deleteTask = async function (taskId) {
     }
 };
 
-// Admin Provisions Employee Account
-const empForm = document.getElementById('createEmployeeForm');
-if (empForm) {
-    empForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('empName').value.trim();
-        const email = document.getElementById('empEmail').value.trim();
-        const password = document.getElementById('empPassword').value;
-        const msg = document.getElementById('empMsg');
-
-        try {
-            const res = await fetch('/api/auth/provision', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({ name, email, password, role: 'Member' })
-            });
-
-            const data = await res.json();
-            msg.classList.remove('hidden');
-
-            if (res.ok) {
-                msg.className = 'text-xs mt-2 text-green-600 font-medium';
-                msg.textContent = `Account created for ${data.user.email}`;
-                empForm.reset();
-                setTimeout(() => msg.classList.add('hidden'), 3500);
-            } else {
-                msg.className = 'text-xs mt-2 text-red-600 font-medium';
-                msg.textContent = data.message || 'Failed to provision account';
-            }
-        } catch (err) {
-            console.error('Provisioning error:', err);
-        }
-    });
-}
 
 // Workspace Creation (Admin Only)
 const createWsForm = document.getElementById('createWorkspaceForm');
