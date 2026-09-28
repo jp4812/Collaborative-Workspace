@@ -145,6 +145,31 @@
   color: inherit;
 }
 
+/* Quick-Move Sheet Option Buttons */
+.move-option-btn {
+  min-height: 48px;
+  cursor: pointer;
+  background-color: #ffffff;
+  border-width: 1.5px;
+  transition: all 160ms ease;
+  user-select: none;
+}
+
+.move-option-btn:hover:not(.is-current) {
+  background-color: #f9fafb;
+}
+
+.move-option-btn.is-current {
+  background-color: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+  cursor: default;
+}
+
+.move-option-btn.is-current .status-indicator-badge {
+  color: #6b7280 !important;
+  font-weight: 600;
+}
+
 /* --------------------------------------------------------------------------
    Responsive Media Queries: Mobile & Tablet (< 768px)
    -------------------------------------------------------------------------- */
@@ -191,6 +216,34 @@
     max-height: 88vh !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* Dedicated Mobile Quick-Move Bottom Sheet */
+  #moveTaskModal.modal-backdrop {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  #moveTaskModal .move-sheet-box {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-top-left-radius: 1.25rem !important;
+    border-top-right-radius: 1.25rem !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 1.25rem 1.25rem 1.5rem 1.25rem !important;
+    box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.15) !important;
+    animation: slideUpSheet 220ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  @keyframes slideUpSheet {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
   }
 
   /* Workspace Sidebar Collapsible Toggle */

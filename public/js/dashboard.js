@@ -210,25 +210,35 @@ async function fetchTasks(workspaceId) {
                 ? (task.assignedTo.name || task.assignedTo.email)
                 : 'Unassigned';
 
+            const moveAction = `
+                <button type="button" onclick="openMoveModal('${task._id}', event)" class="btn-card-action btn-card-move" title="Move Task">
+                  <i class="bi bi-arrow-left-right"></i>
+                </button>
+            `;
+
             const adminActions = isAdmin ? `
-                <div class="flex items-center space-x-1">
-                  <button onclick="openEditModal('${task._id}')" class="btn-icon" title="Edit Task"><i class="bi bi-pencil-square"></i></button>
-                  <button onclick="deleteTask('${task._id}')" class="btn-icon btn-icon-danger" title="Delete Task"><i class="bi bi-trash"></i></button>
-                </div>
+                <button type="button" onclick="openEditModal('${task._id}')" class="btn-card-action" title="Edit Task"><i class="bi bi-pencil-square"></i></button>
+                <button type="button" onclick="deleteTask('${task._id}')" class="btn-card-action btn-card-action-danger" title="Delete Task"><i class="bi bi-trash"></i></button>
             ` : '';
 
             card.innerHTML = `
-                <div class="flex items-start justify-between gap-2">
-                  <div>
+                <div class="flex items-start justify-between gap-1.5">
+                  <div class="flex-1 min-w-0">
                     ${issueBadge}
-                    <h4 class="font-semibold text-gray-900 text-sm leading-snug mt-0.5">${task.title}</h4>
+                    <h4 class="font-semibold text-gray-900 text-sm leading-snug break-words mt-0.5">${task.title}</h4>
                   </div>
-                  ${adminActions}
+                  <div class="flex items-center space-x-0.5 flex-shrink-0 -mr-1">
+                    ${moveAction}
+                    ${adminActions}
+                  </div>
                 </div>
-                ${task.description ? `<p class="text-xs text-gray-500">${task.description}</p>` : ''}
-                <div class="flex items-center justify-between pt-2 border-t border-gray-100 text-xs">
-                  <span class="px-2 py-0.5 rounded font-medium ${priorityColor}">${task.priority}</span>
-                  <span class="text-gray-600 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded flex items-center"><i class="bi bi-person mr-1 text-gray-400"></i> ${assigneeName}</span>
+                ${task.description ? `<p class="text-xs text-gray-500 break-words mt-1">${task.description}</p>` : ''}
+                <div class="flex items-center justify-between gap-1.5 pt-2 border-t border-gray-100 text-xs">
+                  <span class="px-2 py-0.5 rounded font-medium flex-shrink-0 ${priorityColor}">${task.priority}</span>
+                  <span class="text-gray-600 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded flex items-center min-w-0 max-w-[130px]" title="${assigneeName}">
+                    <i class="bi bi-person mr-1 text-gray-400 flex-shrink-0"></i>
+                    <span class="truncate">${assigneeName}</span>
+                  </span>
                 </div>
             `;
 
@@ -354,8 +364,106 @@ if (editModal) {
     });
 }
 
+// ----------------- Mobile Quick-Move Modal Logic -----------------
+
+window.openMoveModal = function (taskId, ev) {
+    if (ev) ev.stopPropagation();
+
+    const task = currentTasksCache.find((t) => t._id === taskId);
+    if (!task) return;
+
+    document.getElementById('moveTaskId').value = task._id;
+    const subtitle = document.getElementById('moveTaskSubtitle');
+    if (subtitle) {
+        subtitle.textContent = `"${task.title}"`;
+    }
+
+    const optionBtns = document.querySelectorAll('.move-option-btn');
+    optionBtns.forEach((btn) => {
+        const btnStatus = btn.dataset.status;
+        const isCurrent = btnStatus === task.status;
+        const badge = btn.querySelector('.status-indicator-badge');
+
+        if (isCurrent) {
+            btn.classList.add('is-current');
+            btn.disabled = true;
+            if (badge) badge.innerHTML = `<i class="bi bi-check2 text-xs mr-1 text-green-600 font-bold"></i> Current`;
+        } else {
+            btn.classList.remove('is-current');
+            btn.disabled = false;
+            if (badge) badge.innerHTML = `<i class="bi bi-chevron-right text-xs"></i>`;
+        }
+    });
+
+    const modal = document.getElementById('moveTaskModal');
+    if (modal) modal.classList.remove('hidden');
+};
+
+const closeMoveModal = () => {
+    const modal = document.getElementById('moveTaskModal');
+    if (modal) modal.classList.add('hidden');
+};
+
+async function executeMove(taskId, newStatus) {
+    closeMoveModal();
+
+    try {
+        const res = await fetch(`/api/tasks/${taskId}/status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (!res.ok) throw new Error('Status update failed');
+
+        // Seamlessly switch mobile active tab to the destination column
+        if (window.innerWidth < 768) {
+            const targetTab = document.querySelector(`.kanban-tab-btn[data-tab="${newStatus}"]`);
+            if (targetTab) targetTab.click();
+        }
+
+        await fetchTasks(activeWorkspaceId);
+    } catch (err) {
+        console.error('Failed to move task:', err);
+        alert('Could not move task. Please try again.');
+        await fetchTasks(activeWorkspaceId);
+    }
+}
+
+function initMoveModalListeners() {
+    const closeBtn = document.getElementById('closeMoveModalBtn');
+    const cancelBtn = document.getElementById('cancelMoveModalBtn');
+    const moveModal = document.getElementById('moveTaskModal');
+
+    if (closeBtn) closeBtn.addEventListener('click', closeMoveModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeMoveModal);
+
+    if (moveModal) {
+        moveModal.addEventListener('click', (e) => {
+            if (e.target === moveModal) closeMoveModal();
+        });
+    }
+
+    const optionBtns = document.querySelectorAll('.move-option-btn');
+    optionBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const taskId = document.getElementById('moveTaskId').value;
+            const newStatus = btn.dataset.status;
+            if (taskId && newStatus && !btn.classList.contains('is-current')) {
+                executeMove(taskId, newStatus);
+            }
+        });
+    });
+}
+
 window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeEditModal();
+    if (e.key === 'Escape') {
+        closeEditModal();
+        closeMoveModal();
+    }
 });
 
 document.getElementById('editTaskForm').addEventListener('submit', async (e) => {
@@ -591,4 +699,5 @@ function initMobileWorkspaceCollapse() {
 initKanbanDropzones();
 initMobileKanbanTabs();
 initMobileWorkspaceCollapse();
+initMoveModalListeners();
 fetchWorkspaces();
