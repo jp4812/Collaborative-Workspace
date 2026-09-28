@@ -4,7 +4,7 @@ const User = require('./models/User');
 
 dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/nexus';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/collaborative_workspace_db';
 
 async function forceSeedAdmin() {
   try {

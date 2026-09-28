@@ -5,11 +5,13 @@ var WorkspaceSchema = new Schema({
   name: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    unique: true // <-- Enforces global uniqueness
   },
   description: {
     type: String,
-    default: ''
+    default: '',
+    trim: true
   },
   owner: {
     type: Schema.Types.ObjectId,

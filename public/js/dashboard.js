@@ -460,7 +460,7 @@ document.getElementById('createTaskForm').addEventListener('submit', async (e) =
     if (!isAdmin) {
         const todayStr = new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
         title = `[Daily: ${todayStr}] ${title}`;
-        assignedTo = user.id;
+        assignedTo = user.id || user._id;
     } else {
         const selected = document.getElementById('taskAssignee').value;
         assignedTo = selected && selected.trim() !== '' ? selected : null;

@@ -47,7 +47,16 @@ router.post('/', authenticate, async (req, res) => {
             return res.status(404).json({ message: 'Workspace not found.' });
         }
 
-        const validAssignee = assignedTo && assignedTo.trim() !== '' ? assignedTo : null;
+        let validAssignee = null;
+        if (assignedTo) {
+            if (typeof assignedTo === 'string' && assignedTo.trim() !== '') {
+                validAssignee = assignedTo.trim();
+            } else if (typeof assignedTo === 'object' && (assignedTo._id || assignedTo.id)) {
+                validAssignee = (assignedTo._id || assignedTo.id).toString();
+            }
+        }
+
+        const userId = req.user.id || req.user._id;
 
         const newTask = await Task.create({
             title,
@@ -55,7 +64,7 @@ router.post('/', authenticate, async (req, res) => {
             priority: priority || 'Medium',
             assignedTo: validAssignee,
             workspace,
-            createdBy: req.user.id,
+            createdBy: userId,
             status: status || 'To Do'
         });
 
@@ -82,7 +91,7 @@ router.patch('/:id/status', authenticate, async (req, res) => {
         const task = await Task.findByIdAndUpdate(
             req.params.id,
             { status },
-            { returnDocument: true }
+            { returnDocument: 'after' }
         ).populate('assignedTo', 'name email');
 
         if (!task) {
@@ -106,15 +115,23 @@ router.put('/:id', authenticate, async (req, res) => {
             return res.status(404).json({ message: 'Task not found.' });
         }
 
+        const userId = (req.user.id || req.user._id).toString();
         const workspace = await Workspace.findById(task.workspace);
-        const isOwner = workspace && workspace.owner.toString() === req.user.id;
+        const isOwner = workspace && workspace.owner && workspace.owner.toString() === userId;
         const isAdmin = req.user.role === 'Admin';
 
         if (!isOwner && !isAdmin) {
             return res.status(403).json({ message: 'Only Admins or Workspace Owners can edit task details.' });
         }
 
-        const validAssignee = assignedTo && assignedTo.trim() !== '' ? assignedTo : null;
+        let validAssignee = null;
+        if (assignedTo) {
+            if (typeof assignedTo === 'string' && assignedTo.trim() !== '') {
+                validAssignee = assignedTo.trim();
+            } else if (typeof assignedTo === 'object' && (assignedTo._id || assignedTo.id)) {
+                validAssignee = (assignedTo._id || assignedTo.id).toString();
+            }
+        }
 
         task.title = title || task.title;
         task.description = description !== undefined ? description : task.description;
@@ -139,8 +156,9 @@ router.delete('/:id', authenticate, async (req, res) => {
             return res.status(404).json({ message: 'Task not found.' });
         }
 
+        const userId = (req.user.id || req.user._id).toString();
         const workspace = await Workspace.findById(task.workspace);
-        const isOwner = workspace && workspace.owner.toString() === req.user.id;
+        const isOwner = workspace && workspace.owner && workspace.owner.toString() === userId;
         const isAdmin = req.user.role === 'Admin';
 
         if (!isOwner && !isAdmin) {

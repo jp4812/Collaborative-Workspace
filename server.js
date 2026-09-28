@@ -53,12 +53,22 @@ async function seedInitialAdmin() {
 
 // Database Connection & Server Initialization
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/nexus';
+let MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/collaborative_workspace_db';
+
+// Guard against missing database name in URI (e.g. 'mongodb://localhost:27017/' or 'mongodb://localhost:27017')
+// which causes Mongoose to silently default to the 'test' database.
+const uriWithoutQuery = MONGO_URI.split('?')[0];
+const pathSegments = uriWithoutQuery.split('://')[1]?.split('/') || [];
+if (pathSegments.length < 2 || !pathSegments[1].trim()) {
+    const defaultDb = 'collaborative_workspace_db';
+    MONGO_URI = MONGO_URI.replace(/\/$/, '') + '/' + defaultDb;
+    console.warn(`[WARN] MONGO_URI lacked a database name. Automatically appending: ${MONGO_URI}`);
+}
 
 mongoose
     .connect(MONGO_URI)
     .then(async () => {
-        console.log('Connected to MongoDB database');
+        console.log(`Connected to MongoDB database: "${mongoose.connection.name}" at ${MONGO_URI}`);
         await seedInitialAdmin();
         app.listen(PORT, () => {
             console.log(`Nexus Enterprise Server running at http://localhost:${PORT}`);
