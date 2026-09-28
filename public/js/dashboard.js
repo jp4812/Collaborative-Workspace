@@ -245,6 +245,13 @@ async function fetchTasks(workspaceId) {
         document.getElementById('count-inprogress').textContent = counts['In Progress'] || 0;
         document.getElementById('count-completed').textContent = counts['Completed'] || 0;
 
+        const tabTodo = document.getElementById('tab-count-todo');
+        const tabInprog = document.getElementById('tab-count-inprogress');
+        const tabComp = document.getElementById('tab-count-completed');
+        if (tabTodo) tabTodo.textContent = counts['To Do'] || 0;
+        if (tabInprog) tabInprog.textContent = counts['In Progress'] || 0;
+        if (tabComp) tabComp.textContent = counts['Completed'] || 0;
+
     } catch (err) {
         console.error('Failed to load tasks:', err);
     }
@@ -541,6 +548,47 @@ document.getElementById('inviteMemberForm')?.addEventListener('submit', async (e
     }
 });
 
+// ----------------- Mobile Responsive Helpers -----------------
+
+function initMobileKanbanTabs() {
+    const tabs = document.querySelectorAll('.kanban-tab-btn');
+    const cols = document.querySelectorAll('.kanban-col');
+
+    tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+            const targetStatus = tab.dataset.tab;
+            tabs.forEach((t) => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            cols.forEach((col) => {
+                if (col.dataset.status === targetStatus) {
+                    col.classList.add('mobile-active');
+                } else {
+                    col.classList.remove('mobile-active');
+                }
+            });
+        });
+    });
+}
+
+function initMobileWorkspaceCollapse() {
+    const toggleBtn = document.getElementById('toggleWsBtn');
+    const container = document.getElementById('workspaceListContainer');
+    const toggleText = document.getElementById('wsToggleText');
+    const toggleIcon = document.getElementById('wsToggleIcon');
+
+    if (toggleBtn && container) {
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isHidden = container.classList.toggle('hidden-on-mobile');
+            if (toggleText) toggleText.textContent = isHidden ? 'Show' : 'Hide';
+            if (toggleIcon) toggleIcon.className = isHidden ? 'bi bi-chevron-down ml-1' : 'bi bi-chevron-up ml-1';
+        });
+    }
+}
+
 // Boot Application
 initKanbanDropzones();
+initMobileKanbanTabs();
+initMobileWorkspaceCollapse();
 fetchWorkspaces();

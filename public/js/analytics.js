@@ -173,7 +173,7 @@ function renderStatusChart(tasks) {
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: { boxWidth: 12, font: { family: 'Plus Jakarta Sans', size: 12 } }
+                    labels: { boxWidth: 12, font: { family: 'Inter', size: 12 } }
                 }
             },
             cutout: '68%'

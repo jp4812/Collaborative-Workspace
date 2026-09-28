@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus - Collaborative Workspace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Questrial&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/css/style.css">
@@ -21,7 +24,7 @@
             --color-emerald-light: #d1fae5;
             --color-danger: #dc2626;
             --color-danger-light: #fef2f2;
-            --font-sans: 'Plus Jakarta Sans', sans-serif;
+            --font-sans: 'Inter', 'Questrial', sans-serif;
         }
     </style>
 </head>
@@ -29,7 +32,7 @@
 <body class="bg-gray-100 min-h-screen text-gray-800">
 
     <!-- Top Navigation Bar -->
-    <nav class="bg-white shadow-sm px-6 py-3.5 flex justify-between items-center border-b border-gray-200 sticky top-0 z-30">
+    <nav class="bg-white shadow-sm px-4 sm:px-6 py-3.5 flex justify-between items-center border-b border-gray-200 sticky top-0 z-30">
         <div class="flex items-center space-x-6">
             <a href="/dashboard.html" class="flex items-center space-x-2.5">
                 <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-extrabold text-sm shadow">
@@ -38,23 +41,45 @@
                 <span class="text-xl font-extrabold tracking-tight text-indigo-600">Nexus</span>
             </a>
 
-            <!-- Central Navigation Links -->
-            <div class="flex items-center space-x-1">
+            <!-- Desktop Central Navigation Links -->
+            <div class="hidden md:flex items-center space-x-1 desktop-nav-links">
                 <a href="/dashboard.html" class="nav-link-active">Board</a>
                 <a href="/analytics.html" id="navAnalyticsLink" class="nav-link hidden">Analytics</a>
                 <a href="/members.html" class="nav-link">Team Directory</a>
             </div>
         </div>
 
-        <div class="flex items-center space-x-4">
+        <!-- Desktop User Profile & Logout -->
+        <div class="hidden md:flex items-center space-x-4 desktop-user-profile">
             <span id="userRoleBadge" class="badge badge-gray"></span>
             <span id="userName" class="text-sm font-medium text-gray-600"></span>
             <button id="logoutBtn" class="btn-danger-light">Logout</button>
         </div>
+
+        <!-- Mobile Hamburger Toggle Button -->
+        <button id="mobileMenuBtn" class="mobile-menu-btn md:hidden" aria-label="Toggle navigation menu">
+            <i class="bi bi-list"></i>
+        </button>
     </nav>
 
+    <!-- Mobile Nav Drawer -->
+    <div id="mobileNavDrawer" class="mobile-nav-drawer hidden md:hidden">
+        <div class="space-y-1">
+            <a href="/dashboard.html" class="mobile-nav-link-active"><i class="bi bi-kanban"></i> Board</a>
+            <a href="/analytics.html" id="mobileNavAnalyticsLink" class="mobile-nav-link hidden"><i class="bi bi-graph-up-arrow"></i> Analytics</a>
+            <a href="/members.html" class="mobile-nav-link"><i class="bi bi-people"></i> Team Directory</a>
+        </div>
+        <div class="mobile-user-profile">
+            <div>
+                <p id="mobileUserName" class="text-sm font-semibold text-gray-900"></p>
+                <span id="mobileUserRoleBadge" class="badge badge-gray mt-1"></span>
+            </div>
+            <button id="mobileLogoutBtn" class="btn-danger-light text-xs py-1.5 px-3">Logout</button>
+        </div>
+    </div>
+
     <!-- Main Grid Layout -->
-    <main class="max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <main class="max-w-7xl mx-auto p-4 sm:p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
 
         <!-- Left Column: Workspaces & Admin Operations -->
         <section class="md:col-span-1 space-y-6">
@@ -77,11 +102,18 @@
                 </form>
             </div>
 
-            <!-- Workspaces List -->
+            <!-- Workspaces List Card with Mobile Collapse -->
             <div class="card">
-                <h2 class="section-heading">Your Workspaces</h2>
-                <div id="workspaceList" class="space-y-2">
-                    <p class="text-sm text-gray-500">Loading workspaces...</p>
+                <div class="flex items-center justify-between cursor-pointer md:cursor-default" id="mobileWsHeader">
+                    <h2 class="section-heading mb-0">Your Workspaces</h2>
+                    <button type="button" class="mobile-ws-toggle text-gray-500 hover:text-indigo-600 md:hidden text-xs font-semibold py-1 px-2 rounded bg-gray-100" id="toggleWsBtn">
+                        <span id="wsToggleText">Hide</span> <i class="bi bi-chevron-up ml-1" id="wsToggleIcon"></i>
+                    </button>
+                </div>
+                <div id="workspaceListContainer" class="mobile-ws-content mt-3 space-y-2">
+                    <div id="workspaceList" class="space-y-2">
+                        <p class="text-sm text-gray-500">Loading workspaces...</p>
+                    </div>
                 </div>
             </div>
 
@@ -156,11 +188,24 @@
                 </form>
             </div>
 
+            <!-- Mobile Segmented Column Tabs (Visible on < 768px) -->
+            <div class="kanban-mobile-tabs" id="kanbanMobileTabs">
+                <button type="button" class="kanban-tab-btn active" data-tab="To Do">
+                    To Do <span id="tab-count-todo" class="kanban-tab-count">0</span>
+                </button>
+                <button type="button" class="kanban-tab-btn" data-tab="In Progress">
+                    In Progress <span id="tab-count-inprogress" class="kanban-tab-count">0</span>
+                </button>
+                <button type="button" class="kanban-tab-btn" data-tab="Completed">
+                    Done <span id="tab-count-completed" class="kanban-tab-count">0</span>
+                </button>
+            </div>
+
             <!-- Kanban Columns -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="kanbanBoard">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 kanban-board-grid" id="kanbanBoard">
 
                 <!-- To Do Column -->
-                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex flex-col kanban-col"
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex flex-col kanban-col mobile-active"
                     data-status="To Do">
                     <div class="flex items-center justify-between mb-3 px-1">
                         <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">To Do</h3>
@@ -211,7 +256,7 @@
                     <input type="text" id="editTaskTitle" required class="form-input">
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="form-label">Priority</label>
                         <select id="editTaskPriority" class="form-select">
@@ -241,6 +286,7 @@
         </div>
     </div>
 
+    <script src="/js/navbar.js"></script>
     <script src="/js/dashboard.js"></script>
 </body>
 

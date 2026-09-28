@@ -3,12 +3,13 @@
    Imports modular component stylesheets with CSS variable design tokens
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Questrial&display=swap');
 @import url('variables.css');
 @import url('buttons.css');
 @import url('forms.css');
 @import url('components.css');
+@import url('responsive.css');
 
 body {
-  font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif);
+  font-family: var(--font-sans, 'Inter', 'Questrial', system-ui, -apple-system, sans-serif);
 }
