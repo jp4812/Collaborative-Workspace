@@ -216,6 +216,12 @@ async function fetchTasks(workspaceId) {
                 </button>
             `;
 
+            const inspectAction = `
+                <button type="button" onclick="openDetailsModal('${task._id}', event)" class="btn-card-action text-indigo-600 hover:text-indigo-800" title="Inspect Task Details">
+                  <i class="bi bi-eye"></i>
+                </button>
+            `;
+
             const adminActions = isAdmin ? `
                 <button type="button" onclick="openEditModal('${task._id}')" class="btn-card-action" title="Edit Task"><i class="bi bi-pencil-square"></i></button>
                 <button type="button" onclick="deleteTask('${task._id}')" class="btn-card-action btn-card-action-danger" title="Delete Task"><i class="bi bi-trash"></i></button>
@@ -229,6 +235,7 @@ async function fetchTasks(workspaceId) {
                   </div>
                   <div class="flex items-center space-x-0.5 flex-shrink-0 -mr-1">
                     ${moveAction}
+                    ${inspectAction}
                     ${adminActions}
                   </div>
                 </div>
@@ -459,10 +466,163 @@ function initMoveModalListeners() {
     });
 }
 
+// ----------------- Task Details (Inspect) Modal Logic -----------------
+
+window.openDetailsModal = function (taskId, ev) {
+    if (ev) ev.stopPropagation();
+
+    const task = currentTasksCache.find((t) => t._id === taskId);
+    if (!task) return;
+
+    const modal = document.getElementById('taskDetailsModal');
+    if (!modal) return;
+    modal.dataset.taskId = task._id;
+
+    // Issue / Bug badge
+    const isBug = task.title.toLowerCase().includes('bug') || task.title.toLowerCase().startsWith('[bug]');
+    const issueBadge = document.getElementById('detailsIssueBadge');
+    if (issueBadge) {
+        if (isBug) {
+            issueBadge.classList.remove('hidden');
+        } else {
+            issueBadge.classList.add('hidden');
+        }
+    }
+
+    // Title
+    const titleEl = document.getElementById('detailsTaskTitle');
+    if (titleEl) titleEl.textContent = task.title;
+
+    // Status Badge
+    const statusEl = document.getElementById('detailsTaskStatus');
+    if (statusEl) {
+        statusEl.textContent = task.status;
+        if (task.status === 'Completed') {
+            statusEl.className = 'badge badge-emerald';
+        } else if (task.status === 'In Progress') {
+            statusEl.className = 'badge badge-indigo';
+        } else {
+            statusEl.className = 'badge badge-gray';
+        }
+    }
+
+    // Priority Badge
+    const priorityEl = document.getElementById('detailsTaskPriority');
+    if (priorityEl) {
+        priorityEl.textContent = task.priority + ' Priority';
+        if (task.priority === 'High') {
+            priorityEl.className = 'badge bg-red-100 text-red-700 font-semibold';
+        } else if (task.priority === 'Medium') {
+            priorityEl.className = 'badge bg-yellow-100 text-yellow-800 font-semibold';
+        } else {
+            priorityEl.className = 'badge bg-gray-100 text-gray-700 font-semibold';
+        }
+    }
+
+    // Description
+    const descEl = document.getElementById('detailsTaskDesc');
+    if (descEl) {
+        if (task.description && task.description.trim()) {
+            descEl.textContent = task.description;
+            descEl.classList.remove('italic', 'text-gray-400');
+            descEl.classList.add('text-gray-700');
+        } else {
+            descEl.textContent = 'No description provided for this task.';
+            descEl.classList.add('italic', 'text-gray-400');
+            descEl.classList.remove('text-gray-700');
+        }
+    }
+
+    // Assignee
+    const assigneeEl = document.getElementById('detailsTaskAssignee');
+    const assigneeEmailEl = document.getElementById('detailsTaskAssigneeEmail');
+    if (task.assignedTo && typeof task.assignedTo === 'object') {
+        if (assigneeEl) assigneeEl.textContent = task.assignedTo.name || 'Unnamed Member';
+        if (assigneeEmailEl) assigneeEmailEl.textContent = task.assignedTo.email || '';
+    } else {
+        if (assigneeEl) assigneeEl.textContent = 'Unassigned';
+        if (assigneeEmailEl) assigneeEmailEl.textContent = 'No member assigned yet';
+    }
+
+    // Reporter / Created By
+    const createdByEl = document.getElementById('detailsTaskCreatedBy');
+    const createdByEmailEl = document.getElementById('detailsTaskCreatedByEmail');
+    if (task.createdBy && typeof task.createdBy === 'object') {
+        if (createdByEl) createdByEl.textContent = task.createdBy.name || 'Project Member';
+        if (createdByEmailEl) createdByEmailEl.textContent = task.createdBy.email || '';
+    } else {
+        if (createdByEl) createdByEl.textContent = 'System / Workspace';
+        if (createdByEmailEl) createdByEmailEl.textContent = '';
+    }
+
+    // Created & Updated timestamps using .toLocaleString()
+    const createdAtEl = document.getElementById('detailsTaskCreatedAt');
+    if (createdAtEl) {
+        createdAtEl.textContent = task.createdAt
+            ? new Date(task.createdAt).toLocaleString()
+            : 'N/A';
+    }
+
+    const updatedAtEl = document.getElementById('detailsTaskUpdatedAt');
+    if (updatedAtEl) {
+        updatedAtEl.textContent = task.updatedAt
+            ? new Date(task.updatedAt).toLocaleString()
+            : 'N/A';
+    }
+
+    // MongoDB Task ID
+    const taskIdEl = document.getElementById('detailsTaskId');
+    if (taskIdEl) taskIdEl.textContent = task._id;
+
+    // Admin Edit Button Shortcut
+    const editBtn = document.getElementById('detailsEditBtn');
+    if (editBtn) {
+        if (isAdmin) {
+            editBtn.classList.remove('hidden');
+        } else {
+            editBtn.classList.add('hidden');
+        }
+    }
+
+    modal.classList.remove('hidden');
+};
+
+const closeDetailsModal = () => {
+    const modal = document.getElementById('taskDetailsModal');
+    if (modal) modal.classList.add('hidden');
+};
+
+function initDetailsModalListeners() {
+    const closeBtn = document.getElementById('closeDetailsModalBtn');
+    const cancelBtn = document.getElementById('cancelDetailsModalBtn');
+    const editBtn = document.getElementById('detailsEditBtn');
+    const modal = document.getElementById('taskDetailsModal');
+
+    if (closeBtn) closeBtn.addEventListener('click', closeDetailsModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeDetailsModal);
+
+    if (editBtn) {
+        editBtn.addEventListener('click', () => {
+            const taskId = modal.dataset.taskId;
+            closeDetailsModal();
+            if (taskId && window.openEditModal) {
+                window.openEditModal(taskId);
+            }
+        });
+    }
+
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeDetailsModal();
+        });
+    }
+}
+
 window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeEditModal();
         closeMoveModal();
+        closeDetailsModal();
     }
 });
 
@@ -700,4 +860,5 @@ initKanbanDropzones();
 initMobileKanbanTabs();
 initMobileWorkspaceCollapse();
 initMoveModalListeners();
+initDetailsModalListeners();
 fetchWorkspaces();

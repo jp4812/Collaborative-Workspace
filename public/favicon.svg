@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b" />
+      <stop offset="50%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#090d16" />
+    </linearGradient>
+
+    <!-- Ribbon Gradient 1: Left Pillar to Diagonal -->
+    <linearGradient id="violetToIndigo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c084fc" />
+      <stop offset="40%" stop-color="#818cf8" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+
+    <!-- Ribbon Gradient 2: Diagonal Cross to Cyan -->
+    <linearGradient id="indigoToCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="60%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#22d3ee" />
+    </linearGradient>
+
+    <!-- Ribbon Gradient 3: Right Pillar Loop -->
+    <linearGradient id="cyanToBlue" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0ea5e9" />
+      <stop offset="70%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+
+    <!-- Subtle Glow Shadow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#6366f1" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Base Icon Plate -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#bgGrad)" stroke="#312e81" stroke-width="1.2" />
+
+  <!-- Nexus Interconnected 'N' Origami Ribbon -->
+  <g filter="url(#glow)">
+    <!-- Back Loop / Depth Underlay -->
+    <path d="M22 17 C16 17 14 23 14 31 L14 42 C14 48 18 50 23 48 C28 46 36 34 40 28 L43 23 C46 19 50 21 50 26 L50 38" 
+          fill="none" 
+          stroke="url(#violetToIndigo)" 
+          stroke-width="5.5" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          opacity="0.9" />
+
+    <!-- Fore Loop: Diagonal Overpass & Right Upright -->
+    <path d="M14 36 L14 26 C14 20 18 17 23 19 C28 21 38 34 43 40 C47 45 50 44 50 38 L50 23" 
+          fill="none" 
+          stroke="url(#cyanToBlue)" 
+          stroke-width="5.5" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" />
+
+    <!-- Front Crossing Gloss Highlight Accent -->
+    <path d="M24 23 L40 43" 
+          fill="none" 
+          stroke="url(#indigoToCyan)" 
+          stroke-width="3" 
+          stroke-linecap="round" 
+          opacity="0.85" />
+  </g>
+</svg>
