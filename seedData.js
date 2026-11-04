@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const User = require('./models/User');
 const Workspace = require('./models/Workspace');
 const Task = require('./models/Task');
+const Organization = require('./models/Organization');
 
 dotenv.config();
 
@@ -15,63 +16,84 @@ async function seedData() {
     console.log('MongoDB connected successfully.');
 
     // 1. Clear existing collections to give a clean, rich dataset
-    console.log('Clearing existing tasks, workspaces, and users...');
+    console.log('Clearing existing tasks, workspaces, users, and organizations...');
     await Task.deleteMany({});
     await Workspace.deleteMany({});
     await User.deleteMany({});
+    await Organization.deleteMany({});
 
-    // 2. Create Users
+    // 2. Create Organization
+    console.log('Seeding enterprise organization...');
+    const nexusOrg = await Organization.create({
+      orgId: 'ORG-NEXUS-01',
+      orgName: 'Nexus Enterprise',
+      allowedDomains: ['nexus.in', 'admin.nexus.in', 'emp.nexus.in', 'nexus.com'],
+      status: 'Active',
+      plan: 'Enterprise'
+    });
+
+    // 3. Create Users
     console.log('Seeding corporate users...');
     const adminUser = await User.create({
       name: 'Nexus Root Admin',
       email: 'superadmin@admin.nexus.in',
       password: 'AdminRoot123!',
-      role: 'Admin'
+      role: 'Admin',
+      organization: nexusOrg._id
     });
+
+    nexusOrg.owner = adminUser._id;
+    await nexusOrg.save();
 
     const rahul = await User.create({
       name: 'Rahul Sharma',
       email: 'rahul.sharma@emp.nexus.in',
       password: 'EmpPass123!',
-      role: 'Member'
+      role: 'Member',
+      organization: nexusOrg._id
     });
 
     const priya = await User.create({
       name: 'Priya Patel',
       email: 'priya.patel@emp.nexus.in',
       password: 'EmpPass123!',
-      role: 'Member'
+      role: 'Member',
+      organization: nexusOrg._id
     });
 
     const ananya = await User.create({
       name: 'Ananya Singh',
       email: 'ananya.singh@emp.nexus.in',
       password: 'EmpPass123!',
-      role: 'Member'
+      role: 'Member',
+      organization: nexusOrg._id
     });
 
     const vikram = await User.create({
       name: 'Vikram Verma',
       email: 'vikram.verma@emp.nexus.in',
       password: 'EmpPass123!',
-      role: 'Member'
+      role: 'Member',
+      organization: nexusOrg._id
     });
 
     const neha = await User.create({
       name: 'Neha Gupta',
       email: 'neha.gupta@emp.nexus.in',
       password: 'EmpPass123!',
-      role: 'Member'
+      role: 'Member',
+      organization: nexusOrg._id
     });
 
-    console.log('Seeded 1 Root Admin and 5 Corporate Members.');
+    console.log('Seeded 1 Root Admin and 5 Corporate Members linked to Nexus Enterprise.');
 
-    // 3. Create Workspaces
+    // 4. Create Workspaces
     console.log('Seeding workspaces...');
     const ws1 = await Workspace.create({
       name: 'Sprint 1 - Core Services',
       description: 'API microservices, authentication security, and RBAC governance.',
       owner: adminUser._id,
+      organization: nexusOrg._id,
       members: [adminUser._id, rahul._id, priya._id, ananya._id, vikram._id]
     });
 
@@ -79,6 +101,7 @@ async function seedData() {
       name: 'UI/UX Redesign & Design System',
       description: 'Modernizing the component library, responsive Kanban board, and accessible color tokens.',
       owner: adminUser._id,
+      organization: nexusOrg._id,
       members: [adminUser._id, priya._id, neha._id, rahul._id]
     });
 
@@ -86,6 +109,7 @@ async function seedData() {
       name: 'Cloud Infrastructure & CI/CD',
       description: 'Docker containerization, automated testing pipelines, and staging deployment automation.',
       owner: adminUser._id,
+      organization: nexusOrg._id,
       members: [adminUser._id, ananya._id, vikram._id]
     });
 

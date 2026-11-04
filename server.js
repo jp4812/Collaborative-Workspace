@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
 const User = require('./models/User');
+const Organization = require('./models/Organization');
 
 dotenv.config();
 
@@ -28,22 +29,39 @@ app.use('/api/tasks', require('./routes/taskRoutes'));
 // Enterprise Root Admin Seeding Function
 async function seedInitialAdmin() {
     try {
+        let defaultOrg = await Organization.findOne({ orgId: 'ORG-NEXUS-01' });
+        if (!defaultOrg) {
+            defaultOrg = await Organization.create({
+                orgId: 'ORG-NEXUS-01',
+                orgName: 'Nexus Enterprise',
+                allowedDomains: ['nexus.in', 'admin.nexus.in', 'emp.nexus.in', 'nexus.internal', 'nexus.com'],
+                status: 'Active'
+            });
+        }
+
         const adminExists = await User.findOne({ role: 'Admin' });
         if (!adminExists) {
             const email = process.env.ROOT_ADMIN_EMAIL || 'admin@nexus.internal';
             const password = process.env.ROOT_ADMIN_PASSWORD || 'AdminRoot123!';
 
-            await User.create({
+            const admin = await User.create({
                 name: 'Nexus Root Admin',
                 email,
                 password,
-                role: 'Admin'
+                role: 'Admin',
+                organization: defaultOrg._id
             });
+
+            if (!defaultOrg.owner) {
+                defaultOrg.owner = admin._id;
+                await defaultOrg.save();
+            }
 
             console.log('\n=============================================');
             console.log('--- ENTERPRISE ROOT ADMIN SEEDED ---');
-            console.log(`Email:    ${email}`);
-            console.log(`Password: ${password}`);
+            console.log(`Email:        ${email}`);
+            console.log(`Password:     ${password}`);
+            console.log(`Organization: ${defaultOrg.orgName}`);
             console.log('=============================================\n');
         }
     } catch (error) {

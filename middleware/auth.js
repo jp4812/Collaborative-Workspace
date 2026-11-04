@@ -15,7 +15,8 @@ function authenticate(req, res, next) {
         req.user = {
             ...decoded,
             id: userId,
-            _id: userId
+            _id: userId,
+            organizationId: decoded.organizationId
         };
         next();
     } catch (error) {

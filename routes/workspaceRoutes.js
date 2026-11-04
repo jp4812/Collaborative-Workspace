@@ -24,6 +24,7 @@ router.post('/', authenticate, authorizeRoles(['Admin']), async (req, res) => {
             name: name.trim(),
             description: description ? description.trim() : '',
             owner: userId,
+            organization: req.user.organizationId || null,
             members: [userId]
         });
 
@@ -59,9 +60,14 @@ router.post('/', authenticate, authorizeRoles(['Admin']), async (req, res) => {
 router.get('/', authenticate, async (req, res) => {
     try {
         const userId = req.user.id || req.user._id;
-        const workspaces = await Workspace.find({
+        const query = {
             $or: [{ owner: userId }, { members: userId }]
-        })
+        };
+        if (req.user.organizationId) {
+            query.organization = req.user.organizationId;
+        }
+
+        const workspaces = await Workspace.find(query)
             .populate('owner', 'name email role')
             .populate('members', 'name email role');
 

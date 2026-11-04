@@ -18,6 +18,10 @@ var WorkspaceSchema = new Schema({
     ref: 'User',
     required: true
   },
+  organization: {
+    type: Schema.Types.ObjectId,
+    ref: 'Organization'
+  },
   members: [
     {
       type: Schema.Types.ObjectId,
