@@ -180,10 +180,10 @@
 @media (max-width: 767.98px) {
   .btn-card-move {
     display: inline-flex;
-    color: var(--color-primary, #4f46e5);
-    background-color: var(--color-primary-light, #eef2ff);
+    color: var(--color-primary, #3b2fd9);
+    background-color: var(--color-primary-light, #f1f0fe);
   }
   .btn-card-move:active {
-    background-color: rgba(79, 70, 229, 0.2);
+    background-color: rgba(59, 47, 217, 0.2);
   }
 }

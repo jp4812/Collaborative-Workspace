@@ -104,3 +104,20 @@
         setupNav();
     }
 })();
+
+// ==========================================================================
+// Branded Full-Page Loader Controller
+// ==========================================================================
+function hideLoader() {
+    const l = document.getElementById('nxLoader');
+    if (!l) return;
+    l.classList.add('nx-hide');
+    setTimeout(() => {
+        if (l && l.parentNode) {
+            l.parentNode.removeChild(l);
+        }
+    }, 300);
+}
+
+// Failsafe so it never gets stuck if a request fails
+setTimeout(hideLoader, 8000);

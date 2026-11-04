@@ -25,12 +25,12 @@
 
 .mobile-menu-btn:hover {
   background-color: var(--color-bg-subtle, #f9fafb);
-  color: var(--color-primary, #4f46e5);
-  border-color: var(--color-primary-light, #eef2ff);
+  color: var(--color-primary, #3b2fd9);
+  border-color: var(--color-primary-light, #f1f0fe);
 }
 
 .mobile-menu-btn:focus-visible {
-  outline: 2px solid var(--color-primary, #4f46e5);
+  outline: 2px solid var(--color-primary, #3b2fd9);
   outline-offset: 2px;
 }
 
@@ -69,7 +69,7 @@
 
 .mobile-nav-link:hover {
   background-color: var(--color-bg-subtle, #f9fafb);
-  color: var(--color-primary, #4f46e5);
+  color: var(--color-primary, #3b2fd9);
 }
 
 .mobile-nav-link-active {
@@ -80,8 +80,8 @@
   border-radius: 0.5rem;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--color-primary-hover, #4338ca);
-  background-color: var(--color-primary-light, #eef2ff);
+  color: var(--color-primary-hover, #2f25b8);
+  background-color: var(--color-primary-light, #f1f0fe);
   text-decoration: none;
 }
 

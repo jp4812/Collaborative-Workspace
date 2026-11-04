@@ -3,7 +3,7 @@
    Imports modular component stylesheets with CSS variable design tokens
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Questrial&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@500..700&display=swap');
 @import url('variables.css');
 @import url('buttons.css');
 @import url('forms.css');
@@ -11,5 +11,84 @@
 @import url('responsive.css');
 
 body {
-  font-family: var(--font-sans, 'Inter', 'Questrial', system-ui, -apple-system, sans-serif);
+  font-family: var(--font-sans, 'Inter', system-ui, -apple-system, sans-serif);
+}
+
+h1, h2, h3, h4, h5, h6, .page-heading, .modal-title {
+  font-family: var(--font-display, 'Space Grotesk', 'Inter', sans-serif);
+}
+
+/* ==========================================================================
+   Branded Full-Page Loader & Pulse Animation
+   ========================================================================== */
+.nx-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: #f6f6fb;
+  transition: opacity 0.3s;
+}
+
+.nx-loader.nx-hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nx-line {
+  stroke-dasharray: 100;
+  animation: nx-draw 1.6s ease-in-out infinite;
+}
+
+.nx-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nx-pulse 1.6s ease-in-out infinite;
+}
+
+.nx-node:nth-of-type(2) {
+  animation-delay: 0.15s;
+}
+
+.nx-node:nth-of-type(3) {
+  animation-delay: 0.3s;
+}
+
+.nx-node:nth-of-type(4) {
+  animation-delay: 0.45s;
+}
+
+@keyframes nx-draw {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -100;
+  }
+}
+
+@keyframes nx-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nx-line,
+  .nx-node {
+    animation: none;
+  }
+  .nx-line {
+    stroke-dashoffset: 0;
+  }
 }

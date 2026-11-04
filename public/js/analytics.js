@@ -43,8 +43,12 @@ let allTasks = [];
 
 // Init on load
 document.addEventListener('DOMContentLoaded', async () => {
-    await fetchWorkspaces();
-    await loadAnalyticsData();
+    try {
+        await fetchWorkspaces();
+        await loadAnalyticsData();
+    } finally {
+        if (typeof hideLoader === 'function') hideLoader();
+    }
 
     document.getElementById('workspaceFilter').addEventListener('change', () => {
         applyWorkspaceFilter();
@@ -161,7 +165,7 @@ function renderStatusChart(tasks) {
             labels: ['To Do', 'In Progress', 'Completed'],
             datasets: [{
                 data: [todoCount, inProgCount, completedCount],
-                backgroundColor: ['#94a3b8', '#6366f1', '#10b981'],
+                backgroundColor: ['#cac6fb', '#3b2fd9', '#2de0c4'],
                 borderWidth: 2,
                 borderColor: '#ffffff',
                 hoverOffset: 6
@@ -216,19 +220,19 @@ function renderWorkloadChart(tasks) {
                 {
                     label: 'Completed',
                     data: completedData,
-                    backgroundColor: '#10b981',
+                    backgroundColor: '#2de0c4',
                     borderRadius: 4
                 },
                 {
                     label: 'In Progress',
                     data: inprogData,
-                    backgroundColor: '#6366f1',
+                    backgroundColor: '#3b2fd9',
                     borderRadius: 4
                 },
                 {
                     label: 'To Do',
                     data: todoData,
-                    backgroundColor: '#cbd5e1',
+                    backgroundColor: '#cac6fb',
                     borderRadius: 4
                 }
             ]
@@ -264,7 +268,7 @@ function renderPriorityChart(tasks) {
             datasets: [{
                 label: 'Tasks Count',
                 data: [high, med, low],
-                backgroundColor: ['#ef4444', '#f59e0b', '#38bdf8'],
+                backgroundColor: ['#ef4444', '#f59e0b', '#7d72f0'],
                 borderRadius: 6,
                 maxBarThickness: 45
             }]
@@ -323,8 +327,8 @@ function renderVelocityChart(tasks) {
                 {
                     label: 'Tasks Created',
                     data: createdCounts,
-                    borderColor: '#6366f1',
-                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderColor: '#3b2fd9',
+                    backgroundColor: 'rgba(59, 47, 217, 0.1)',
                     fill: true,
                     tension: 0.35,
                     borderWidth: 2,
@@ -333,8 +337,8 @@ function renderVelocityChart(tasks) {
                 {
                     label: 'Tasks Completed',
                     data: completedCounts,
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderColor: '#2de0c4',
+                    backgroundColor: 'rgba(45, 224, 196, 0.15)',
                     fill: true,
                     tension: 0.35,
                     borderWidth: 2,

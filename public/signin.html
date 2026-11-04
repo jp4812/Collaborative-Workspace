@@ -18,6 +18,29 @@
     <link rel="stylesheet" href="/css/style.css">
     <style type="text/tailwindcss">
         @theme {
+            --color-primary: #3b2fd9;
+            --color-primary-hover: #2f25b8;
+            --color-primary-light: #f1f0fe;
+            --color-purple: #9333ea;
+            --color-purple-hover: #7e22ce;
+            --color-purple-light: #f3e8ff;
+            --color-emerald: #059669;
+            --color-emerald-hover: #047857;
+            --color-emerald-light: #d1fae5;
+            --color-danger: #dc2626;
+            --color-danger-light: #fef2f2;
+
+            --color-indigo-50: #f1f0fe;
+            --color-indigo-100: #e4e2fd;
+            --color-indigo-200: #cac6fb;
+            --color-indigo-300: #a69ff7;
+            --color-indigo-400: #7d72f0;
+            --color-indigo-500: #5a4de6;
+            --color-indigo-600: #3b2fd9;
+            --color-indigo-700: #2f25b8;
+            --color-indigo-800: #261f94;
+            --color-indigo-900: #1d176f;
+
             --color-brand: #3b2fd9;
             --color-brand-hover: #2f25b8;
             --color-brand-deep: #2a20b0;
@@ -166,6 +189,11 @@
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
 
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnContent = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="inline-block size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span> Signing in…';
+
             try {
                 const res = await fetch('/api/auth/login', {
                     method: 'POST',
@@ -178,6 +206,8 @@
                 if (!res.ok) {
                     errorAlert.textContent = data.message || 'Authentication failed.';
                     errorAlert.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnContent;
                     return;
                 }
 
@@ -187,6 +217,8 @@
             } catch (err) {
                 errorAlert.textContent = 'Server connection failed. Verify backend is active.';
                 errorAlert.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnContent;
             }
         });
     </script>

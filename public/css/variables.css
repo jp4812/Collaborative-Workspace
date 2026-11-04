@@ -5,10 +5,10 @@
 
 :root {
   /* Brand / Primary (Indigo) */
-  --color-primary: #4f46e5;
-  --color-primary-hover: #4338ca;
-  --color-primary-light: #eef2ff;
-  --color-primary-focus: rgba(99, 102, 241, 0.2);
+  --color-primary: #3b2fd9;
+  --color-primary-hover: #2f25b8;
+  --color-primary-light: #f1f0fe;
+  --color-primary-focus: rgba(59, 47, 217, 0.2);
 
   /* Purple (Admin) */
   --color-purple: #9333ea;

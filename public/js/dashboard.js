@@ -45,6 +45,7 @@ async function fetchWorkspaces() {
 
         if (workspaces.length === 0) {
             list.innerHTML = '<p class="text-sm text-gray-500">No workspaces assigned.</p>';
+            if (typeof hideLoader === 'function') hideLoader();
             return;
         }
 
@@ -73,6 +74,7 @@ async function fetchWorkspaces() {
         }
     } catch (err) {
         console.error('Failed to load workspaces:', err);
+        if (typeof hideLoader === 'function') hideLoader();
     }
 }
 
@@ -167,9 +169,9 @@ async function fetchTasks(workspaceId) {
     const colInProgress = document.getElementById('col-inprogress');
     const colCompleted = document.getElementById('col-completed');
 
-    colTodo.innerHTML = '<p class="text-xs text-gray-400 p-2">Loading...</p>';
-    colInProgress.innerHTML = '<p class="text-xs text-gray-400 p-2">Loading...</p>';
-    colCompleted.innerHTML = '<p class="text-xs text-gray-400 p-2">Loading...</p>';
+    colTodo.innerHTML = '<div class="h-20 animate-pulse rounded-lg bg-slate-200"></div>';
+    colInProgress.innerHTML = '<div class="h-20 animate-pulse rounded-lg bg-slate-200"></div>';
+    colCompleted.innerHTML = '<div class="h-20 animate-pulse rounded-lg bg-slate-200"></div>';
 
     try {
         const res = await fetch('/api/tasks/workspace/' + workspaceId, {
@@ -271,6 +273,8 @@ async function fetchTasks(workspaceId) {
 
     } catch (err) {
         console.error('Failed to load tasks:', err);
+    } finally {
+        if (typeof hideLoader === 'function') hideLoader();
     }
 }
 

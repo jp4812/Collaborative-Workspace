@@ -33,8 +33,12 @@ let allUsers = [];
 let allWorkspaces = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await fetchWorkspaces();
-    await fetchUsers();
+    try {
+        await fetchWorkspaces();
+        await fetchUsers();
+    } finally {
+        if (typeof hideLoader === 'function') hideLoader();
+    }
 
     // Event listeners
     document.getElementById('memberSearchInput').addEventListener('input', applyFilters);
@@ -125,7 +129,6 @@ function renderDirectoryGrid(users) {
             ? '<span class="badge badge-purple">Admin</span>'
             : '<span class="badge badge-emerald">Member</span>';
 
-        const avatarColor = isUserAdmin ? 'bg-purple-600' : 'bg-indigo-600';
         const initials = u.name ? u.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U';
 
         // Find workspaces this user is enrolled in
@@ -150,7 +153,7 @@ function renderDirectoryGrid(users) {
                 <div>
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-center space-x-3">
-                            <div class="w-11 h-11 rounded-xl ${avatarColor} text-white font-bold flex items-center justify-center text-sm shadow-sm">
+                            <div class="w-11 h-11 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-sm shadow-sm">
                                 ${initials}
                             </div>
                             <div>
