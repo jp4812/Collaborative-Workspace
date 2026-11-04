@@ -4,71 +4,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus - Enterprise Sign In</title>
+    <title>Nexus - Sign In</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
     <link rel="apple-touch-icon" sizes="192x192" href="/images/logo-192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Questrial&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=Space+Grotesk:wght@500..700&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <style type="text/tailwindcss">
         @theme {
-            --color-primary: #4f46e5;
-            --color-primary-hover: #4338ca;
-            --color-primary-light: #eef2ff;
-            --color-purple: #9333ea;
-            --color-purple-hover: #7e22ce;
-            --color-purple-light: #f3e8ff;
-            --color-emerald: #059669;
-            --color-emerald-hover: #047857;
-            --color-emerald-light: #d1fae5;
-            --color-danger: #dc2626;
-            --color-danger-light: #fef2f2;
-            --font-sans: 'Inter', 'Questrial', sans-serif;
+            --color-brand: #3b2fd9;
+            --color-brand-hover: #2f25b8;
+            --color-brand-deep: #2a20b0;
+            --color-mint: #2de0c4;
+            --color-ink: #14123d;
+            --color-ground: #f6f6fb;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-display: 'Space Grotesk', 'Inter', sans-serif;
         }
     </style>
 </head>
 
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 sm:p-6">
+<body class="min-h-screen bg-white font-sans text-ink antialiased">
 
-    <div class="card w-full max-w-md p-6 sm:p-8 space-y-6 shadow-md">
-        <div class="text-center">
-            <img src="/images/logo.png" alt="Nexus Logo" class="inline-block w-14 h-14 rounded-2xl shadow-md mb-2.5 object-cover">
-            <h1 class="text-2xl font-extrabold tracking-tight text-gray-900">Nexus Workspace</h1>
-            <p class="text-xs text-gray-500 mt-1 uppercase tracking-wider font-semibold">Authorized Personnel Only</p>
-        </div>
+    <div class="flex min-h-screen">
 
-        <!-- Error Alert Box -->
-        <div id="errorAlert" class="hidden p-3 text-xs text-red-700 bg-red-50 rounded-md border border-red-200"></div>
+        <!-- Brand panel (desktop only) -->
+        <aside
+            class="relative hidden w-[44%] max-w-[640px] flex-col justify-between overflow-hidden bg-brand p-12 text-white lg:flex">
+            <!-- Decorative node network -->
+            <svg class="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 500 800"
+                preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <g stroke="#ffffff" stroke-opacity="0.14" stroke-width="1.5" fill="none">
+                    <path d="M60 520 L180 440 L300 500 L420 400 L440 560 L300 500" />
+                    <path d="M180 440 L160 620 L300 700 L440 560" />
+                    <path d="M160 620 L60 520" />
+                    <path d="M300 500 L300 700" />
+                    <path d="M420 400 L360 300 L220 330 L180 440" />
+                </g>
+                <g fill="#ffffff" fill-opacity="0.2">
+                    <circle cx="60" cy="520" r="7" />
+                    <circle cx="180" cy="440" r="9" />
+                    <circle cx="420" cy="400" r="7" />
+                    <circle cx="440" cy="560" r="9" />
+                    <circle cx="160" cy="620" r="7" />
+                    <circle cx="300" cy="700" r="9" />
+                    <circle cx="360" cy="300" r="7" />
+                    <circle cx="220" cy="330" r="7" />
+                </g>
+                <circle cx="300" cy="500" r="11" fill="#2de0c4" />
+            </svg>
 
-        <form id="signinForm" class="space-y-4">
-            <div>
-                <label class="form-label">Corporate Email</label>
-                <input type="email" id="email" required class="form-input"
-                    placeholder="admin@company.com or employee@company.com">
+            <div class="relative flex items-center gap-3">
+                <svg width="44" height="44" viewBox="0 0 96 96" role="img" aria-label="Nexus logo">
+                    <rect width="96" height="96" rx="26" fill="#ffffff" />
+                    <path d="M28 68 L28 28 L68 68 L68 28" fill="none" stroke="#3b2fd9" stroke-width="7"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                    <circle cx="28" cy="68" r="9" fill="#3b2fd9" stroke="#ffffff" stroke-width="4" />
+                    <circle cx="68" cy="28" r="9" fill="#3b2fd9" stroke="#ffffff" stroke-width="4" />
+                    <circle cx="28" cy="28" r="9" fill="#2de0c4" stroke="#ffffff" stroke-width="4" />
+                    <circle cx="68" cy="68" r="9" fill="#2de0c4" stroke="#ffffff" stroke-width="4" />
+                </svg>
+                <span class="font-display text-3xl font-semibold tracking-tight">Nexus</span>
             </div>
 
-            <div>
-                <label class="form-label">Password</label>
-                <input type="password" id="password" required class="form-input" placeholder="••••••••">
+            <div class="relative max-w-sm">
+                <h2 class="font-display text-4xl font-semibold leading-tight tracking-tight">Where teams build together.
+                </h2>
+                <p class="mt-4 text-base leading-relaxed text-white/80">One shared workspace for your team's projects,
+                    documents and conversations.</p>
             </div>
+        </aside>
 
-            <button type="submit" class="btn btn-primary w-full py-2.5">
-                <i class="bi bi-box-arrow-in-right mr-1.5"></i> Sign In to Nexus
-            </button>
-        </form>
+        <!-- Form side -->
+        <main class="flex flex-1 items-center justify-center bg-ground px-5 py-10 sm:px-8 lg:bg-white">
+            <div class="w-full max-w-sm">
 
-        <div class="border-t border-gray-100 pt-4 text-center">
-            <p class="text-xs text-gray-400 leading-relaxed">
-                Sign in with your corporate email (e.g., <strong>admin@company.com</strong> or <strong>emp@company.com</strong>).
-            </p>
-        </div>
+                <!-- Logo (mobile / tablet only) -->
+                <div class="mb-8 flex items-center gap-3 lg:hidden">
+                    <svg width="44" height="44" viewBox="0 0 96 96" role="img" aria-label="Nexus logo">
+                        <rect width="96" height="96" rx="26" fill="#3b2fd9" />
+                        <path d="M28 68 L28 28 L68 68 L68 28" fill="none" stroke="#ffffff" stroke-width="7"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="28" cy="68" r="9" fill="#ffffff" stroke="#3b2fd9" stroke-width="4" />
+                        <circle cx="68" cy="28" r="9" fill="#ffffff" stroke="#3b2fd9" stroke-width="4" />
+                        <circle cx="28" cy="28" r="9" fill="#2de0c4" stroke="#3b2fd9" stroke-width="4" />
+                        <circle cx="68" cy="68" r="9" fill="#2de0c4" stroke="#3b2fd9" stroke-width="4" />
+                    </svg>
+                    <span class="font-display text-3xl font-semibold tracking-tight">Nexus</span>
+                </div>
+
+                <div
+                    class="rounded-2xl bg-white p-7 shadow-[0_1px_2px_rgba(20,18,61,0.06),0_12px_32px_-8px_rgba(20,18,61,0.12)] sm:p-9 lg:bg-transparent lg:p-0 lg:shadow-none">
+                    <h1 class="font-display text-3xl font-semibold tracking-tight">Sign in</h1>
+                    <p class="mt-2 text-sm text-slate-600">Use your corporate email to access your workspace.</p>
+
+                    <!-- Error Alert Box -->
+                    <div id="errorAlert" role="alert"
+                        class="mt-6 hidden rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"></div>
+
+                    <form id="signinForm" class="mt-7 space-y-5">
+                        <div>
+                            <label for="email" class="mb-1.5 block text-sm font-medium text-ink">Corporate email</label>
+                            <input type="email" id="email" required autocomplete="username"
+                                class="h-11 w-full rounded-lg border border-slate-300 bg-white px-3.5 text-[15px] text-ink placeholder:text-slate-400 outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15"
+                                placeholder="name@company.com">
+                        </div>
+
+                        <div>
+                            <label for="password" class="mb-1.5 block text-sm font-medium text-ink">Password</label>
+                            <div class="relative">
+                                <input type="password" id="password" required autocomplete="current-password"
+                                    class="h-11 w-full rounded-lg border border-slate-300 bg-white py-0 pl-3.5 pr-11 text-[15px] text-ink placeholder:text-slate-400 outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15"
+                                    placeholder="Enter your password">
+                                <button type="button" id="togglePassword" aria-label="Show password"
+                                    class="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-lg text-slate-500 outline-none transition hover:text-brand focus-visible:ring-4 focus-visible:ring-brand/15">
+                                    <i class="bi bi-eye text-lg" id="togglePasswordIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                            class="flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-brand text-[15px] font-semibold text-white outline-none transition hover:bg-brand-hover focus-visible:ring-4 focus-visible:ring-brand/30 active:bg-brand-deep">
+                            <i class="bi bi-box-arrow-in-right"></i> Sign in to Nexus
+                        </button>
+                    </form>
+
+                    <p class="mt-8 border-t border-slate-200 pt-5 text-xs leading-relaxed text-slate-500">
+                        Access is limited to authorized personnel. Contact your workspace admin if you can't sign in.
+                    </p>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script>
+        // Show / hide password
+        (function () {
+            const input = document.getElementById('password');
+            const btn = document.getElementById('togglePassword');
+            const icon = document.getElementById('togglePasswordIcon');
+            btn.addEventListener('click', function () {
+                const show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                icon.className = show ? 'bi bi-eye-slash text-lg' : 'bi bi-eye text-lg';
+                btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+            });
+        })();
+
+        // Sign-in API call (unchanged)
         document.getElementById('signinForm').addEventListener('submit', async function (e) {
             e.preventDefault();
             const errorAlert = document.getElementById('errorAlert');
