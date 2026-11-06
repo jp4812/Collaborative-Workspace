@@ -156,11 +156,24 @@ function populateAssigneeSelect() {
 
 // Visibility Toggles
 document.getElementById('openTaskFormBtn').addEventListener('click', () => {
-    document.getElementById('addTaskSection').classList.toggle('hidden');
+    const sec = document.getElementById('addTaskSection');
+    const isOpening = sec.classList.contains('hidden');
+    sec.classList.toggle('hidden');
+    if (isOpening) {
+        if (typeof clearFormError === 'function') clearFormError('createTaskAlert');
+        if (typeof setFieldError === 'function') setFieldError('taskTitle', '');
+    }
 });
 
 document.getElementById('openMemberModalBtn')?.addEventListener('click', () => {
-    document.getElementById('addMemberSection')?.classList.toggle('hidden');
+    const sec = document.getElementById('addMemberSection');
+    const isOpening = sec?.classList.contains('hidden');
+    sec?.classList.toggle('hidden');
+    if (isOpening) {
+        if (typeof setFieldError === 'function') setFieldError('inviteEmail', '');
+        const msg = document.getElementById('inviteMsg');
+        if (msg) msg.classList.add('hidden');
+    }
 });
 
 // Load Tasks and Populate Kanban Columns
@@ -344,6 +357,9 @@ function initKanbanDropzones() {
 window.openEditModal = function (taskId) {
     const task = currentTasksCache.find((t) => t._id === taskId);
     if (!task) return;
+
+    if (typeof clearFormError === 'function') clearFormError('editTaskAlert');
+    if (typeof setFieldError === 'function') setFieldError('editTaskTitle', '');
 
     document.getElementById('editTaskId').value = task._id;
     document.getElementById('editTaskTitle').value = task.title;
@@ -632,6 +648,10 @@ window.addEventListener('keydown', (e) => {
 
 document.getElementById('editTaskForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    clearFormError('editTaskAlert');
+
+    if (!validateGroup(e.target)) return;
+
     const taskId = document.getElementById('editTaskId').value;
     const title = document.getElementById('editTaskTitle').value.trim();
     const description = document.getElementById('editTaskDesc').value.trim();
@@ -655,13 +675,15 @@ document.getElementById('editTaskForm').addEventListener('submit', async (e) => 
 
         if (res.ok) {
             closeEditModal();
+            showSuccessToast('Task updated successfully!');
             fetchTasks(activeWorkspaceId);
         } else {
             const data = await res.json();
-            alert(data.message || 'Failed to update task');
+            showFormError(data.message || 'Failed to update task', 'editTaskAlert');
         }
     } catch (err) {
         console.error('Edit task error:', err);
+        showFormError('Could not connect to the server. Check your connection and try again.', 'editTaskAlert');
     }
 });
 
@@ -676,6 +698,7 @@ window.deleteTask = async function (taskId) {
         });
 
         if (res.ok) {
+            showSuccessToast('Task deleted successfully!');
             fetchTasks(activeWorkspaceId);
         } else {
             const data = await res.json();
@@ -692,6 +715,10 @@ const createWsForm = document.getElementById('createWorkspaceForm');
 if (createWsForm) {
     createWsForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        clearFormError('createWsAlert');
+
+        if (!validateGroup(createWsForm)) return;
+
         const name = document.getElementById('wsName').value.trim();
         const description = document.getElementById('wsDesc').value.trim();
 
@@ -711,16 +738,18 @@ if (createWsForm) {
                 document.getElementById('wsName').value = '';
                 document.getElementById('wsDesc').value = '';
 
+                showSuccessToast('Workspace created successfully!');
                 await fetchWorkspaces();
                 const newWorkspace = data.workspace || data;
                 if (newWorkspace && newWorkspace._id) {
                     selectWorkspace(newWorkspace);
                 }
             } else {
-                alert(data.message || 'Failed to create workspace');
+                showFormError(data.message || 'Failed to create workspace', 'createWsAlert');
             }
         } catch (err) {
             console.error('Create workspace error:', err);
+            showFormError('Could not connect to the server. Check your connection and try again.', 'createWsAlert');
         }
     });
 }
@@ -728,7 +757,10 @@ if (createWsForm) {
 // Task / Daily Log Creation
 document.getElementById('createTaskForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    clearFormError('createTaskAlert');
+
     if (!activeWorkspaceId) return;
+    if (!validateGroup(e.target)) return;
 
     let title = document.getElementById('taskTitle').value.trim();
     const description = document.getElementById('taskDesc').value.trim();
@@ -768,13 +800,15 @@ document.getElementById('createTaskForm').addEventListener('submit', async (e) =
             document.getElementById('taskTitle').value = '';
             document.getElementById('taskDesc').value = '';
             document.getElementById('addTaskSection').classList.add('hidden');
+            showSuccessToast('Task created successfully!');
             fetchTasks(activeWorkspaceId);
         } else {
             const errData = await res.json();
-            alert(errData.message || 'Failed to record work entry');
+            showFormError(errData.message || 'Failed to record work entry', 'createTaskAlert');
         }
     } catch (err) {
         console.error('Task creation error:', err);
+        showFormError('Could not connect to the server. Check your connection and try again.', 'createTaskAlert');
     }
 });
 
@@ -782,6 +816,8 @@ document.getElementById('createTaskForm').addEventListener('submit', async (e) =
 document.getElementById('inviteMemberForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!activeWorkspaceId) return;
+
+    if (!validateGroup(e.target)) return;
 
     const emailInput = document.getElementById('inviteEmail');
     const msg = document.getElementById('inviteMsg');
@@ -804,6 +840,7 @@ document.getElementById('inviteMemberForm')?.addEventListener('submit', async (e
             msg.className = 'text-xs mt-2 text-green-600 font-medium';
             msg.textContent = 'Member added to workspace!';
             emailInput.value = '';
+            showSuccessToast('Member added to workspace!');
 
             await fetchWorkspaces();
 
@@ -817,6 +854,9 @@ document.getElementById('inviteMemberForm')?.addEventListener('submit', async (e
         }
     } catch (err) {
         console.error('Invite member error:', err);
+        msg.className = 'text-xs mt-2 text-red-600 font-medium';
+        msg.textContent = 'Could not connect to the server. Check your connection and try again.';
+        msg.classList.remove('hidden');
     }
 });
 
@@ -858,6 +898,11 @@ function initMobileWorkspaceCollapse() {
         });
     }
 }
+
+// Live validation for forms
+['#createWorkspaceForm', '#inviteMemberForm', '#createTaskForm', '#editTaskForm'].forEach((f) => {
+    if (typeof bindLiveValidation === 'function') bindLiveValidation(f);
+});
 
 // Boot Application
 initKanbanDropzones();

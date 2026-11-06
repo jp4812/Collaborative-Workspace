@@ -4,6 +4,18 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Organization = require('../models/Organization');
 const { authenticate, authorizeRoles } = require('../middleware/auth');
+const { issueOtp } = require('../services/otp.service');
+const { createPurposeToken } = require('../services/token.service');
+
+// Helper: Mask email for privacy (e.g. s***@acme.com)
+function maskEmail(email) {
+  if (!email || !email.includes('@')) return email || '';
+  const [userPart, domainPart] = email.split('@');
+  if (userPart.length <= 1) {
+    return `${userPart}***@${domainPart}`;
+  }
+  return `${userPart[0]}***@${domainPart}`;
+}
 
 // Helper: Extract domain from email (e.g., "name@company.com" -> "company.com")
 function getEmailDomain(email) {
@@ -128,8 +140,36 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // 4. Issue JWT token with organizationId and role
     const orgId = organization ? organization._id : null;
+
+    // Optional 2FA Login OTP check (guarded by env OTP_LOGIN_ENABLED)
+    const otpLoginEnabled = process.env.OTP_LOGIN_ENABLED === 'true';
+    if (otpLoginEnabled && (user.role === 'Admin' || user.otpEnabled)) {
+      await issueOtp({
+        email: user.email,
+        purpose: 'login',
+        ip: req.ip
+      });
+
+      const loginToken = createPurposeToken(
+        {
+          userId: user._id,
+          email: user.email,
+          role: user.role,
+          organizationId: orgId
+        },
+        'login-verify',
+        '15m'
+      );
+
+      return res.json({
+        otpRequired: true,
+        loginToken,
+        email: maskEmail(user.email)
+      });
+    }
+
+    // 4. Issue JWT token with organizationId and role
     const token = jwt.sign(
       {
         id: user._id,

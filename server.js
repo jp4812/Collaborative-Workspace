@@ -7,7 +7,22 @@ const Organization = require('./models/Organization');
 
 dotenv.config();
 
+// Fail fast on startup in production if secrets are missing
+if (process.env.NODE_ENV === 'production') {
+    if (!process.env.JWT_SECRET) {
+        console.error('FATAL: JWT_SECRET environment variable is required in production.');
+        process.exit(1);
+    }
+    if (!process.env.OTP_SECRET) {
+        console.error('FATAL: OTP_SECRET environment variable is required in production.');
+        process.exit(1);
+    }
+}
+
 const app = express();
+
+// Trust reverse proxy (e.g. Render, Heroku, Nginx) for accurate IP-based rate limiting
+app.set('trust proxy', 1);
 
 // Body Parser Middleware
 app.use(express.json());
@@ -22,6 +37,9 @@ app.get('/', (req, res) => {
 });
 
 // API Routes
+const otpRoutes = require('./routes/otp.routes');
+app.use('/api/auth', otpRoutes);
+app.use('/api/organizations', otpRoutes);
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/workspaces', require('./routes/workspaceRoutes'));
 app.use('/api/tasks', require('./routes/taskRoutes'));
@@ -70,7 +88,7 @@ async function seedInitialAdmin() {
 }
 
 // Database Connection & Server Initialization
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 let MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/collaborative_workspace_db';
 
 // Guard against missing database name in URI (e.g. 'mongodb://localhost:27017/' or 'mongodb://localhost:27017')

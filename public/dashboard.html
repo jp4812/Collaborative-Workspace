@@ -117,13 +117,16 @@
             <!-- Create Workspace Card (Admin Only) -->
             <div id="adminCreateWorkspaceCard" class="card border-indigo-100 hidden">
                 <h2 class="section-heading text-indigo-700">Create Workspace</h2>
-                <form id="createWorkspaceForm" class="space-y-3">
+                <div id="createWsAlert" role="alert" class="hidden mb-3 p-3 rounded-lg border border-red-200 bg-red-50 text-xs text-red-700"></div>
+                <form id="createWorkspaceForm" class="space-y-3" novalidate>
                     <div>
-                        <label class="form-label-regular">Workspace Name</label>
-                        <input type="text" id="wsName" required class="form-input" placeholder="e.g. Core Engineering">
+                        <label for="wsName" class="form-label-regular">Workspace Name</label>
+                        <input type="text" id="wsName" required class="form-input" placeholder="e.g. Core Engineering"
+                            aria-describedby="wsName_err" aria-invalid="false">
+                        <p id="wsName_err" class="nx-error hidden" role="alert"></p>
                     </div>
                     <div>
-                        <label class="form-label-regular">Description</label>
+                        <label for="wsDesc" class="form-label-regular">Description</label>
                         <textarea id="wsDesc" rows="2" class="form-textarea" placeholder="Goals & deliverables..."></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary w-full">
@@ -172,11 +175,15 @@
 
                 <!-- Collapsible Member Invite Form -->
                 <div id="addMemberSection" class="hidden mt-4 pt-4 border-t border-gray-100">
-                    <form id="inviteMemberForm" class="flex gap-2">
-                        <input type="email" id="inviteEmail" required
-                            placeholder="Employee email (e.g. rahul@emp.nexus.in)..."
-                            class="form-input flex-1">
-                        <button type="submit" class="btn btn-primary">
+                    <form id="inviteMemberForm" class="flex flex-col sm:flex-row gap-2" novalidate>
+                        <div class="flex-1">
+                            <input type="email" id="inviteEmail" required
+                                placeholder="Employee email (e.g. rahul@emp.nexus.in)..."
+                                class="form-input w-full"
+                                aria-describedby="inviteEmail_err" aria-invalid="false">
+                            <p id="inviteEmail_err" class="nx-error hidden" role="alert"></p>
+                        </div>
+                        <button type="submit" class="btn btn-primary self-start sm:self-auto">
                             Invite
                         </button>
                     </form>
@@ -187,9 +194,14 @@
             <!-- Collapsible Task / Daily Work Form -->
             <div id="addTaskSection" class="card hidden">
                 <h3 id="taskSectionHeader" class="section-heading mb-3">Create New Task</h3>
-                <form id="createTaskForm" class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <input type="text" id="taskTitle" placeholder="Task title / What did you work on today?" required
-                        class="form-input col-span-2">
+                <div id="createTaskAlert" role="alert" class="hidden mb-3 p-3 rounded-lg border border-red-200 bg-red-50 text-xs text-red-700"></div>
+                <form id="createTaskForm" class="grid grid-cols-1 md:grid-cols-4 gap-3" novalidate>
+                    <div class="col-span-1 md:col-span-2">
+                        <input type="text" id="taskTitle" placeholder="Task title / What did you work on today?" required
+                            aria-describedby="taskTitle_err" aria-invalid="false"
+                            class="form-input w-full">
+                        <p id="taskTitle_err" class="nx-error hidden" role="alert"></p>
+                    </div>
 
                     <select id="taskPriority" class="form-select">
                         <option value="Low">Low Priority</option>
@@ -211,7 +223,7 @@
 
                     <input type="text" id="taskDesc"
                         placeholder="Brief summary of work / context / blockers (optional)..."
-                        class="form-input col-span-2">
+                        class="form-input col-span-1 md:col-span-2">
 
                     <button type="submit" id="submitTaskBtn" class="btn btn-primary col-span-1">
                         Save Task
@@ -279,12 +291,15 @@
                 <button id="closeEditModalBtn" class="btn-close"><i class="bi bi-x-lg"></i></button>
             </div>
 
-            <form id="editTaskForm" class="space-y-4">
+            <form id="editTaskForm" class="space-y-4" novalidate>
+                <div id="editTaskAlert" role="alert" class="hidden mb-3 p-3 rounded-lg border border-red-200 bg-red-50 text-xs text-red-700"></div>
                 <input type="hidden" id="editTaskId">
 
                 <div>
-                    <label class="form-label">Title</label>
-                    <input type="text" id="editTaskTitle" required class="form-input">
+                    <label for="editTaskTitle" class="form-label">Title</label>
+                    <input type="text" id="editTaskTitle" required class="form-input"
+                        aria-describedby="editTaskTitle_err" aria-invalid="false">
+                    <p id="editTaskTitle_err" class="nx-error hidden" role="alert"></p>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -467,6 +482,7 @@
     </div>
 
     <script src="/js/navbar.js"></script>
+    <script src="/js/form-errors.js"></script>
     <script src="/js/dashboard.js"></script>
 </body>
 

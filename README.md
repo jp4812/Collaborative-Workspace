@@ -164,7 +164,7 @@ npm install
 Create a `.env` file in the project root:
 
 ```env
-PORT=5000
+PORT=3000
 MONGO_URI=mongodb://127.0.0.1:27017/nexus
 JWT_SECRET=nexus_super_secret_enterprise_key_2026
 ROOT_ADMIN_EMAIL=superadmin@admin.nexus.in
@@ -190,7 +190,7 @@ Default seeded administrator credentials:
 node server.js
 ```
 
-The application will be live at `http://localhost:5000/signin.html`.
+The application will be live at `http://localhost:3000/signin.html`.
 
 ---
 
@@ -198,12 +198,12 @@ The application will be live at `http://localhost:5000/signin.html`.
 
 ### 1. Administrator Session
 
-1. Navigate to `http://localhost:5000/signin.html`.
+1. Navigate to `http://localhost:3000/signin.html`.
 2. Sign in as `superadmin@admin.nexus.in` using `AdminRoot123!`.
 3. Under **Create Workspace**, input `Sprint 1 - Core Services` and submit.
 4. Under **Provision Employee**, onboard a test team member:
    * **Full Name:** `Rahul Sharma`
-   * **Corporate Email:** `rahul@emp.nexus.in` *(must use `@emp.nexus.in`)*
+   * **Corporate Email:** `rahul@emp.nexus.in`
    * **Initial Password:** `EmpPass123!`
 5. Click **+ Invite Member** in the top action bar, enter `rahul@emp.nexus.in`, and confirm.
 6. Click **+ Add Task**, populate the fields, assign the card to Rahul, and save.
@@ -211,7 +211,7 @@ The application will be live at `http://localhost:5000/signin.html`.
 ### 2. Employee Session
 
 1. Open a new private/incognito browser window.
-2. Sign in at `http://localhost:5000/signin.html` as `rahul@emp.nexus.in` with `EmpPass123!`.
+2. Sign in at `http://localhost:3000/signin.html` as `rahul.sharma@emp.nexus.in` with `EmpPass123!`.
 3. Confirm that the Provisioning and Workspace creation cards are hidden.
 4. Confirm that the edit (`✎`) and delete (`✕`) controls on task cards are absent.
 5. Drag the assigned task card from **To Do** to **In Progress** and refresh the page to confirm persistent status sync.

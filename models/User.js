@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema(
         organization: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Organization'
+        },
+        otpEnabled: {
+            type: Boolean,
+            default: false
         }
     },
     { timestamps: true }
@@ -35,6 +39,10 @@ const userSchema = new mongoose.Schema(
 // Modern async pre-save hook (no next parameter needed)
 userSchema.pre('save', async function () {
     if (!this.isModified('password')) return;
+    // Prevent re-hashing if password is already a valid bcrypt hash
+    if (typeof this.password === 'string' && /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(this.password)) {
+        return;
+    }
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
 });

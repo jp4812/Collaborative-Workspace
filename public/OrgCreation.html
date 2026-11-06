@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus - Register Organization</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/images/logo-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=Space+Grotesk:wght@500..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <style type="text/tailwindcss">
+        @theme {
+            --color-brand: #3b2fd9;
+            --color-brand-hover: #2f25b8;
+            --color-brand-deep: #2a20b0;
+            --color-mint: #2de0c4;
+            --color-ink: #14123d;
+            --color-ground: #f6f6fb;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-display: 'Space Grotesk', 'Inter', sans-serif;
+            --color-indigo-50: #f1f0fe;
+            --color-indigo-100: #e4e2fd;
+            --color-indigo-200: #cac6fb;
+            --color-indigo-300: #a69ff7;
+            --color-indigo-400: #7d72f0;
+            --color-indigo-500: #5a4de6;
+            --color-indigo-600: #3b2fd9;
+            --color-indigo-700: #2f25b8;
+        }
+
+        /* Shared form styles, so each field stays short and consistent */
+        @layer components {
+            .nx-label { @apply mb-1.5 block text-sm font-semibold text-slate-700; }
+            .nx-hint { @apply mt-1.5 text-xs text-slate-500; }
+            .nx-input { @apply h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm text-ink outline-none transition placeholder:text-slate-400 focus:border-brand focus:ring-4 focus:ring-brand/15; }
+            .nx-input.is-invalid { @apply border-red-400 focus:border-red-500 focus:ring-red-500/15; }
+            .nx-btn { @apply inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-xl px-6 font-display text-base font-semibold outline-none transition focus-visible:ring-4; }
+        }
+    </style>
+    <style>
+        .nx-step { display: none; }
+        .nx-step.active { display: block; animation: nx-in .45s cubic-bezier(.2, .7, .2, 1) both; }
+        @keyframes nx-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+        
+        .nx-error { margin-top:.375rem; font-size:.75rem; font-weight:500; color:#dc2626; display:flex; gap:.35rem; align-items:center; }
+        .nx-error.hidden, .nx-error:empty { display:none !important; }
+        .nx-error:not(:empty)::before { content:"\f33a"; font-family:"bootstrap-icons"; }
+        .nx-error:empty::before { content:none !important; display:none !important; }
+        .nx-input.is-invalid { border-color:#f87171 !important; }
+        .nx-input.is-invalid:focus { border-color:#ef4444 !important; box-shadow:0 0 0 4px rgba(239,68,68,.15) !important; }
+        @media (prefers-reduced-motion:no-preference) { .nx-input.is-invalid { animation:nx-shake .3s; } }
+        @keyframes nx-shake { 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+        @media (prefers-reduced-motion: reduce) { .nx-step.active { animation: none; } }
+    </style>
+</head>
+
+<body class="bg-ground font-sans text-ink antialiased">
+    <div class="flex min-h-screen">
+
+        <!-- ============ LEFT: BRAND + PROGRESS (desktop) ============ -->
+        <aside class="sticky top-0 hidden h-screen w-[40%] max-w-[560px] shrink-0 flex-col justify-between overflow-hidden bg-brand p-12 text-white lg:flex">
+            <svg class="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 500 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <g stroke="#ffffff" stroke-opacity="0.14" stroke-width="1.5" fill="none">
+                    <path d="M60 520 L180 440 L300 500 L420 400 L440 560 L300 500" />
+                    <path d="M180 440 L160 620 L300 700 L440 560" />
+                    <path d="M160 620 L60 520" />
+                    <path d="M300 500 L300 700" />
+                    <path d="M420 400 L360 300 L220 330 L180 440" />
+                </g>
+                <g fill="#ffffff" fill-opacity="0.2">
+                    <circle cx="60" cy="520" r="7" /><circle cx="180" cy="440" r="9" /><circle cx="420" cy="400" r="7" />
+                    <circle cx="440" cy="560" r="9" /><circle cx="160" cy="620" r="7" /><circle cx="300" cy="700" r="9" />
+                    <circle cx="360" cy="300" r="7" /><circle cx="220" cy="330" r="7" />
+                </g>
+                <circle cx="300" cy="500" r="11" fill="#2de0c4" />
+            </svg>
+
+            <a href="/index.html" class="relative flex w-fit items-center gap-3 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-white/40">
+                <img src="/images/nexus-logo.svg" alt="Nexus" class="h-11 w-11">
+                <span class="font-display text-3xl font-semibold tracking-tight">Nexus</span>
+            </a>
+
+            <div class="relative">
+                <h2 class="font-display text-4xl font-semibold leading-tight tracking-tight">Set up your organization’s workspace.</h2>
+                <p class="mt-4 max-w-sm text-base leading-relaxed text-white/80">Four quick steps. Your team signs in with their company email.</p>
+
+                <!-- Vertical stepper -->
+                <ol id="sideSteps" class="mt-10 space-y-6">
+                    <li data-side="1" class="flex items-start gap-4">
+                        <span class="side-dot mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold"></span>
+                        <div><p class="side-title font-display text-lg font-semibold">Organization</p><p class="text-sm text-white/65">Name, code and company domain</p></div>
+                    </li>
+                    <li data-side="2" class="flex items-start gap-4">
+                        <span class="side-dot mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold"></span>
+                        <div><p class="side-title font-display text-lg font-semibold">Administrator</p><p class="text-sm text-white/65">The root admin account</p></div>
+                    </li>
+                    <li data-side="3" class="flex items-start gap-4">
+                        <span class="side-dot mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold"></span>
+                        <div><p class="side-title font-display text-lg font-semibold">Review</p><p class="text-sm text-white/65">Check details</p></div>
+                    </li>
+                    <li data-side="4" class="flex items-start gap-4">
+                        <span class="side-dot mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold"></span>
+                        <div><p class="side-title font-display text-lg font-semibold">Verify</p><p class="text-sm text-white/65">Confirm administrator email</p></div>
+                    </li>
+                </ol>
+            </div>
+
+            <p class="relative text-xs text-white/60">© 2026 Nexus. Authorized corporate workspace.</p>
+        </aside>
+
+        <!-- ============ RIGHT: FORM ============ -->
+        <main class="flex flex-1 justify-center px-4 py-8 sm:px-8 lg:items-center lg:px-12">
+            <div class="w-full max-w-2xl">
+
+                <!-- Top bar -->
+                <div class="mb-6 flex flex-wrap items-center justify-between gap-2 text-sm">
+                    <a href="/index.html" class="inline-flex items-center gap-2 font-semibold text-slate-500 transition hover:text-brand"><i class="bi bi-arrow-left"></i> Back to home</a>
+                    <p class="text-slate-500">Already registered? <a href="/signin.html" class="font-semibold text-brand hover:underline">Sign in</a></p>
+                </div>
+
+                <div class="rounded-2xl border border-indigo-100/80 bg-white p-6 shadow-xl shadow-indigo-950/5 sm:p-10">
+
+                    <!-- Mobile logo + progress -->
+                    <div class="mb-6 lg:hidden">
+                        <div class="mb-5 flex items-center gap-3">
+                            <img src="/images/nexus-logo.svg" alt="Nexus" class="h-10 w-10">
+                            <span class="font-display text-2xl font-semibold tracking-tight">Nexus</span>
+                        </div>
+                        <div class="flex gap-1.5" aria-hidden="true">
+                            <span class="mob-bar h-1.5 flex-1 rounded-full bg-slate-200"></span>
+                            <span class="mob-bar h-1.5 flex-1 rounded-full bg-slate-200"></span>
+                            <span class="mob-bar h-1.5 flex-1 rounded-full bg-slate-200"></span>
+                            <span class="mob-bar h-1.5 flex-1 rounded-full bg-slate-200"></span>
+                        </div>
+                    </div>
+
+                    <!-- Header -->
+                    <header class="mb-8">
+                        <p id="stepEyebrow" class="text-sm font-semibold uppercase tracking-widest text-brand">Step 1 of 4</p>
+                        <h1 id="stepTitle" class="mt-1 font-display text-3xl font-semibold tracking-tight">Organization details</h1>
+                        <p id="stepSub" class="mt-2 text-sm text-slate-600">Tell us about your company.</p>
+                    </header>
+
+                    <!-- Alerts -->
+                    <div id="error_alert" role="alert" class="mb-6 hidden rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <div class="flex items-start gap-2 font-medium"><i class="bi bi-exclamation-triangle-fill mt-0.5"></i><span id="error_message">Registration error</span></div>
+                    </div>
+                    <div id="success_alert" role="status" class="mb-6 hidden rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+                        <div class="flex items-start gap-2 font-medium"><i class="bi bi-check-circle-fill mt-0.5 text-emerald-600"></i><span id="success_message">Organization registered successfully!</span></div>
+                    </div>
+
+                    <form id="org_registration_form" novalidate>
+
+                        <!-- ===== STEP 1: ORGANIZATION ===== -->
+                        <fieldset class="nx-step active" data-step="1">
+                            <legend class="sr-only">Organization details</legend>
+                            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                <div class="sm:col-span-2">
+                                    <label for="org_name" class="nx-label">Organization name <span class="text-rose-500">*</span></label>
+                                    <input type="text" id="org_name" name="org_name" required autocomplete="organization" placeholder="e.g. Acme Corporation" class="nx-input" aria-describedby="org_name_err" aria-invalid="false">
+                                    <p id="org_name_err" class="nx-error hidden" role="alert"></p>
+                                </div>
+                                <div>
+                                    <label for="org_id" class="nx-label">Organization code <span class="text-rose-500">*</span></label>
+                                    <input type="text" id="org_id" name="org_id" required pattern="[A-Za-z0-9_\-]+" placeholder="e.g. ACME-CORP" class="nx-input uppercase" aria-describedby="org_id_err" aria-invalid="false">
+                                    <p id="org_id_err" class="nx-error hidden" role="alert"></p>
+                                    <p class="nx-hint">Short unique ID. Letters, numbers and hyphens. Auto-filled from the name.</p>
+                                </div>
+                                <div>
+                                    <label for="allowed_domains" class="nx-label">Company email domain <span class="text-rose-500">*</span></label>
+                                    <div class="relative">
+                                        <span class="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-sm font-semibold text-slate-400">@</span>
+                                        <input type="text" id="allowed_domains" name="allowed_domains" required placeholder="acme.com" autocapitalize="none" spellcheck="false" class="nx-input pl-8 lowercase" aria-describedby="allowed_domains_err" aria-invalid="false">
+                                    </div>
+                                    <p id="allowed_domains_err" class="nx-error hidden" role="alert"></p>
+                                    <p class="nx-hint">Employees sign in with an email ending in this domain.</p>
+                                </div>
+                                <div>
+                                    <label for="website" class="nx-label">Website <span class="text-xs font-normal text-slate-400">(optional)</span></label>
+                                    <input type="url" id="website" name="website" placeholder="https://acme.com" class="nx-input" aria-describedby="website_err" aria-invalid="false">
+                                    <p id="website_err" class="nx-error hidden" role="alert"></p>
+                                </div>
+                                <div>
+                                    <label for="description" class="nx-label">Industry <span class="text-xs font-normal text-slate-400">(optional)</span></label>
+                                    <input type="text" id="description" name="description" placeholder="e.g. Software and cloud engineering" class="nx-input">
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- ===== STEP 2: ADMINISTRATOR ===== -->
+                        <fieldset class="nx-step" data-step="2">
+                            <legend class="sr-only">Root administrator account</legend>
+                            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                <div>
+                                    <label for="admin_name" class="nx-label">Full name <span class="text-rose-500">*</span></label>
+                                    <input type="text" id="admin_name" name="admin_name" required autocomplete="name" placeholder="e.g. Sarah Connor" class="nx-input" aria-describedby="admin_name_err" aria-invalid="false">
+                                    <p id="admin_name_err" class="nx-error hidden" role="alert"></p>
+                                </div>
+                                <div>
+                                    <label for="admin_email" class="nx-label">Work email <span class="text-rose-500">*</span></label>
+                                    <input type="email" id="admin_email" name="admin_email" required autocomplete="email" placeholder="sarah@acme.com" class="nx-input" aria-describedby="admin_email_err" aria-invalid="false">
+                                    <p id="admin_email_err" class="nx-error hidden" role="alert"></p>
+                                    <p id="emailHint" class="nx-hint">Must use your company domain.</p>
+                                </div>
+                                <div>
+                                    <label for="admin_password" class="nx-label">Password <span class="text-rose-500">*</span></label>
+                                    <div class="relative">
+                                        <input type="password" id="admin_password" name="admin_password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" class="nx-input pr-11" aria-describedby="admin_password_err" aria-invalid="false">
+                                        <button type="button" id="togglePw" aria-label="Show passwords" class="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-slate-500 outline-none transition hover:text-brand focus-visible:ring-4 focus-visible:ring-brand/15"><i class="bi bi-eye text-lg"></i></button>
+                                    </div>
+                                    <p id="admin_password_err" class="nx-error hidden" role="alert"></p>
+                                    <div class="mt-2 flex gap-1" aria-hidden="true">
+                                        <span class="pw-bar h-1.5 flex-1 rounded-full bg-slate-200"></span>
+                                        <span class="pw-bar h-1.5 flex-1 rounded-full bg-slate-200"></span>
+                                        <span class="pw-bar h-1.5 flex-1 rounded-full bg-slate-200"></span>
+                                        <span class="pw-bar h-1.5 flex-1 rounded-full bg-slate-200"></span>
+                                    </div>
+                                    <p id="pwHint" class="nx-hint" aria-live="polite">Use 8+ characters. Mix letters, numbers and symbols for a stronger password.</p>
+                                </div>
+                                <div>
+                                    <label for="admin_confirm_password" class="nx-label">Confirm password <span class="text-rose-500">*</span></label>
+                                    <input type="password" id="admin_confirm_password" name="admin_confirm_password" required minlength="8" autocomplete="new-password" placeholder="Re-enter password" class="nx-input" aria-describedby="admin_confirm_password_err" aria-invalid="false">
+                                    <p id="admin_confirm_password_err" class="nx-error hidden" role="alert"></p>
+                                    <p id="matchHint" class="nx-hint" aria-live="polite">&nbsp;</p>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- ===== STEP 3: REVIEW ===== -->
+                        <fieldset class="nx-step" data-step="3">
+                            <legend class="sr-only">Review and create</legend>
+                            <div class="space-y-4">
+                                <section class="rounded-xl border border-slate-200">
+                                    <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+                                        <h2 class="font-display text-base font-semibold">Organization</h2>
+                                        <button type="button" data-goto="1" class="text-sm font-semibold text-brand hover:underline">Edit</button>
+                                    </div>
+                                    <dl id="reviewOrg" class="divide-y divide-slate-100 text-sm"></dl>
+                                </section>
+                                <section class="rounded-xl border border-slate-200">
+                                    <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+                                        <h2 class="font-display text-base font-semibold">Administrator</h2>
+                                        <button type="button" data-goto="2" class="text-sm font-semibold text-brand hover:underline">Edit</button>
+                                    </div>
+                                    <dl id="reviewAdmin" class="divide-y divide-slate-100 text-sm"></dl>
+                                </section>
+                                <p class="rounded-xl border border-slate-200/80 bg-slate-50 p-4 text-xs leading-relaxed text-slate-500">
+                                    <i class="bi bi-info-circle-fill mr-1 text-brand"></i>
+                                    You will be the root administrator. You can create workspaces, invite team members and manage access once you sign in.
+                                </p>
+                            </div>
+                        </fieldset>
+
+                        <!-- ===== STEP 4: VERIFY OTP ===== -->
+                        <fieldset class="nx-step" data-step="4">
+                            <legend class="sr-only">Verify email address</legend>
+                            <div class="space-y-6 text-center py-4">
+                                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-brand">
+                                    <i class="bi bi-shield-check text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h2 class="font-display text-xl font-semibold">Enter your 6-digit code</h2>
+                                    <p class="mt-1 text-sm text-slate-600">
+                                        We sent a verification code to <strong id="otp_target_email" class="text-ink">your email</strong>.
+                                    </p>
+                                    <p class="mt-1 text-xs text-slate-500">
+                                        Wrong email? <button type="button" id="change_email_btn" class="font-semibold text-brand hover:underline">Change email</button>
+                                    </p>
+                                </div>
+
+                                <!-- Reusable 6-digit OTP Box Container -->
+                                <div class="py-2">
+                                    <div id="registerOtpContainer"></div>
+                                    <p id="registerOtpError" class="nx-error hidden mx-auto mt-3 justify-center text-center" role="alert"></p>
+                                </div>
+
+                                <div class="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-slate-500">
+                                    <span>Didn't receive the code?</span>
+                                    <button type="button" id="registerResendBtn" class="font-semibold text-brand hover:underline disabled:opacity-50">
+                                        Resend code
+                                    </button>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- ===== ACTIONS ===== -->
+                        <div class="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <button type="button" id="backBtn" class="nx-btn invisible border border-slate-200 bg-white text-slate-700 hover:border-indigo-300 focus-visible:ring-brand/20"><i class="bi bi-arrow-left"></i> Back</button>
+                            <button type="button" id="nextBtn" class="nx-btn bg-brand text-white shadow-lg shadow-brand/25 hover:-translate-y-0.5 hover:bg-brand-hover focus-visible:ring-brand/30">Continue <i class="bi bi-arrow-right"></i></button>
+                            <button type="submit" id="submit_button" class="nx-btn hidden bg-brand text-white shadow-lg shadow-brand/25 hover:-translate-y-0.5 hover:bg-brand-hover focus-visible:ring-brand/30"><span>Register Organization</span> <i class="bi bi-check2-circle text-lg"></i></button>
+                            <button type="button" id="verifyOtpBtn" class="nx-btn hidden bg-brand text-white shadow-lg shadow-brand/25 hover:-translate-y-0.5 hover:bg-brand-hover focus-visible:ring-brand/30"><span>Verify & Create</span> <i class="bi bi-arrow-right"></i></button>
+                        </div>
+                    </form>
+                </div>
+
+                <p class="mt-8 text-center text-xs text-slate-400">© 2026 Nexus Workspace. All rights reserved.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Form Validation & Error Handling Module -->
+    <script src="/js/form-errors.js"></script>
+    <script src="/js/otp-input.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const TOTAL = 4;
+            let step = 1;
+            let succeeded = false;
+            let currentPendingToken = null;
+            let registerOtpInput = null;
+
+            const $ = (id) => document.getElementById(id);
+            const form = $('org_registration_form');
+            const errorAlert = $('error_alert');
+            const successAlert = $('success_alert');
+            const successMessage = $('success_message');
+            const submitBtn = $('submit_button');
+            const nextBtn = $('nextBtn');
+            const backBtn = $('backBtn');
+            const verifyOtpBtn = $('verifyOtpBtn');
+
+            const orgNameInput = $('org_name');
+            const orgIdInput = $('org_id');
+            const domainInput = $('allowed_domains');
+            const adminEmailInput = $('admin_email');
+            const pwInput = $('admin_password');
+            const confirmInput = $('admin_confirm_password');
+
+            const META = {
+                1: { title: 'Organization details', sub: 'Tell us about your company.' },
+                2: { title: 'Administrator account', sub: 'This person will manage the workspace.' },
+                3: { title: 'Review and create', sub: 'Check everything before you register.' },
+                4: { title: 'Verify your email', sub: 'Enter the 6-digit code sent to your email.' }
+            };
+
+            /* ---------- step UI ---------- */
+            function setStep(n) {
+                step = n;
+                document.querySelectorAll('.nx-step').forEach((s) => s.classList.toggle('active', Number(s.dataset.step) === n));
+                $('stepEyebrow').textContent = 'Step ' + n + ' of ' + TOTAL;
+                $('stepTitle').textContent = META[n].title;
+                $('stepSub').textContent = META[n].sub;
+
+                backBtn.classList.toggle('invisible', n === 1 || n === 4);
+                nextBtn.classList.toggle('hidden', n >= 3);
+                submitBtn.classList.toggle('hidden', n !== 3);
+                verifyOtpBtn.classList.toggle('hidden', n !== 4);
+
+                // Side stepper (desktop)
+                document.querySelectorAll('[data-side]').forEach((li) => {
+                    const i = Number(li.dataset.side);
+                    const dot = li.querySelector('.side-dot');
+                    const title = li.querySelector('.side-title');
+                    if (i < n) {
+                        dot.className = 'side-dot mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-mint text-ink text-sm font-bold';
+                        dot.innerHTML = '<i class="bi bi-check-lg"></i>';
+                        title.className = 'side-title font-display text-lg font-semibold text-white';
+                    } else if (i === n) {
+                        dot.className = 'side-dot mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-brand text-sm font-bold shadow-lg';
+                        dot.textContent = i;
+                        title.className = 'side-title font-display text-lg font-semibold text-white';
+                    } else {
+                        dot.className = 'side-dot mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white/70 text-sm font-bold';
+                        dot.textContent = i;
+                        title.className = 'side-title font-display text-lg font-semibold text-white/60';
+                    }
+                    li.setAttribute('aria-current', i === n ? 'step' : 'false');
+                });
+
+                // Mobile progress bars
+                document.querySelectorAll('.mob-bar').forEach((b, idx) => {
+                    b.className = 'mob-bar h-1.5 flex-1 rounded-full ' + (idx < n ? 'bg-brand' : 'bg-slate-200');
+                });
+
+                if (n === 2) {
+                    const d = cleanDomain(domainInput.value);
+                    $('emailHint').textContent = d ? 'Must end with @' + d : 'Must use your company domain.';
+                }
+                if (n === 3) buildReview();
+
+                if (n === 4) {
+                    initOtpComponent();
+                } else {
+                    const first = document.querySelector('.nx-step.active input, .nx-step.active button[data-goto]');
+                    if (first && n !== 3) setTimeout(() => first.focus({ preventScroll: true }), 60);
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            window.setStep = setStep;
+
+            function initOtpComponent() {
+                if (!registerOtpInput) {
+                    registerOtpInput = new OtpInput('#registerOtpContainer', {
+                        errorElement: '#registerOtpError',
+                        resendButton: '#registerResendBtn',
+                        onComplete: (code) => handleVerifyOtp(code),
+                        onResend: () => handleResendOtp()
+                    });
+                }
+                registerOtpInput.clear();
+                registerOtpInput.focus();
+                registerOtpInput.startCooldown(60);
+            }
+
+            /* ---------- review summary ---------- */
+            function row(label, value) {
+                const wrap = document.createElement('div');
+                wrap.className = 'flex flex-col gap-0.5 px-5 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6';
+                const dt = document.createElement('dt');
+                dt.className = 'text-slate-500';
+                dt.textContent = label;
+                const dd = document.createElement('dd');
+                dd.className = 'break-all font-semibold sm:text-right';
+                dd.textContent = value || '-';
+                wrap.append(dt, dd);
+                return wrap;
+            }
+
+            function buildReview() {
+                const org = $('reviewOrg'), adm = $('reviewAdmin');
+                org.replaceChildren(
+                    row('Name', orgNameInput.value.trim()),
+                    row('Code', orgIdInput.value.trim().toUpperCase()),
+                    row('Email domain', '@' + cleanDomain(domainInput.value)),
+                    row('Website', $('website').value.trim()),
+                    row('Industry', $('description').value.trim())
+                );
+                adm.replaceChildren(
+                    row('Name', $('admin_name').value.trim()),
+                    row('Email', adminEmailInput.value.trim().toLowerCase()),
+                    row('Password', '••••••••')
+                );
+            }
+
+            /* ---------- field behaviors ---------- */
+            // Auto-fill org code from name until user edits code
+            orgNameInput.addEventListener('input', () => {
+                if (orgIdInput.dataset.manualEdit) return;
+                orgIdInput.value = orgNameInput.value.trim().toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            });
+            orgIdInput.addEventListener('input', () => {
+                if (orgIdInput.value === '') delete orgIdInput.dataset.manualEdit;
+                else orgIdInput.dataset.manualEdit = 'true';
+            });
+
+            // Password show/hide
+            $('togglePw').addEventListener('click', () => {
+                const show = pwInput.type === 'password';
+                pwInput.type = confirmInput.type = show ? 'text' : 'password';
+                $('togglePw').firstElementChild.className = show ? 'bi bi-eye-slash text-lg' : 'bi bi-eye text-lg';
+                $('togglePw').setAttribute('aria-label', show ? 'Hide passwords' : 'Show passwords');
+            });
+
+            // Live password strength indicator
+            const LEVELS = [
+                { t: 'Use 8+ characters. Mix letters, numbers and symbols for a stronger password.', c: 'bg-slate-200' },
+                { t: 'Weak. Add more characters.', c: 'bg-red-400' },
+                { t: 'Fair. Add numbers or symbols.', c: 'bg-amber-400' },
+                { t: 'Good.', c: 'bg-emerald-400' },
+                { t: 'Strong.', c: 'bg-emerald-500' }
+            ];
+            function strength(v) {
+                if (!v) return 0;
+                let s = 0;
+                if (v.length >= 8) s++;
+                if (/[a-z]/.test(v) && /[A-Z]/.test(v)) s++;
+                if (/\d/.test(v)) s++;
+                if (/[^A-Za-z0-9]/.test(v)) s++;
+                return Math.max(s, 1);
+            }
+            function updateMatch() {
+                const m = $('matchHint');
+                if (!confirmInput.value) { m.innerHTML = '&nbsp;'; m.className = 'nx-hint'; return; }
+                const ok = pwInput.value === confirmInput.value;
+                m.textContent = ok ? 'Passwords match.' : "Passwords don't match yet.";
+                m.className = 'nx-hint ' + (ok ? '!text-emerald-600' : '!text-red-500');
+            }
+            pwInput.addEventListener('input', () => {
+                const lv = strength(pwInput.value);
+                document.querySelectorAll('.pw-bar').forEach((b, i) => {
+                    b.className = 'pw-bar h-1.5 flex-1 rounded-full ' + (i < lv ? LEVELS[lv].c : 'bg-slate-200');
+                });
+                $('pwHint').textContent = LEVELS[lv].t;
+                updateMatch();
+            });
+            confirmInput.addEventListener('input', updateMatch);
+
+            // Tidy domain on blur
+            domainInput.addEventListener('blur', () => {
+                domainInput.value = cleanDomain(domainInput.value);
+            });
+
+            // Bind accessible live validation (blur + input)
+            bindLiveValidation(form);
+
+            /* ---------- navigation ---------- */
+            nextBtn.addEventListener('click', () => {
+                clearFormError(errorAlert);
+                const currentStepContainer = document.querySelector(`.nx-step[data-step="${step}"]`);
+                if (validateGroup(currentStepContainer)) {
+                    setStep(step + 1);
+                }
+            });
+
+            backBtn.addEventListener('click', () => {
+                clearFormError(errorAlert);
+                setStep(step - 1);
+            });
+
+            $('change_email_btn')?.addEventListener('click', () => {
+                clearFormError(errorAlert);
+                setStep(2);
+            });
+
+            document.querySelectorAll('[data-goto]').forEach((b) => {
+                b.addEventListener('click', () => {
+                    clearFormError(errorAlert);
+                    setStep(Number(b.dataset.goto));
+                });
+            });
+
+            verifyOtpBtn.addEventListener('click', () => {
+                if (registerOtpInput) {
+                    const code = registerOtpInput.getValue();
+                    handleVerifyOtp(code);
+                }
+            });
+
+            /* ---------- Step 3: Register organization & issue OTP ---------- */
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // If on Step 4, delegate to OTP verify
+                if (step === 4) {
+                    if (registerOtpInput) handleVerifyOtp(registerOtpInput.getValue());
+                    return;
+                }
+
+                // Enter on steps 1-2 moves to next step
+                if (step < 3) {
+                    const currentStepContainer = document.querySelector(`.nx-step[data-step="${step}"]`);
+                    if (validateGroup(currentStepContainer)) {
+                        setStep(step + 1);
+                    }
+                    return;
+                }
+
+                // Re-validate steps 1 & 2 on final review submit
+                for (let s = 1; s <= 2; s++) {
+                    const stepContainer = document.querySelector(`.nx-step[data-step="${s}"]`);
+                    if (!validateGroup(stepContainer)) {
+                        setStep(s);
+                        return;
+                    }
+                }
+
+                clearFormError(errorAlert);
+                successAlert.classList.add('hidden');
+
+                const payload = {
+                    org_name: orgNameInput.value.trim(),
+                    org_id: orgIdInput.value.trim().toUpperCase(),
+                    allowed_domains: cleanDomain(domainInput.value),
+                    website: $('website').value.trim(),
+                    description: $('description').value.trim(),
+                    admin_name: $('admin_name').value.trim(),
+                    admin_email: adminEmailInput.value.trim().toLowerCase(),
+                    admin_password: pwInput.value
+                };
+
+                submitBtn.disabled = true;
+                backBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="inline-block animate-spin">⟳</span> <span>Sending verification code...</span>';
+
+                try {
+                    const response = await fetch('/api/organizations/register-organization', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    let data = {};
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        data = await response.json();
+                    } else {
+                        throw new Error(response.status === 404
+                            ? 'Server endpoint not found. Please restart your server.'
+                            : 'Server returned an unexpected response format.');
+                    }
+
+                    if (!response.ok) {
+                        if (data.field) {
+                            showFieldErrorFromServer(data.field, data.message);
+                        } else {
+                            showFormError(data.message || 'Something went wrong. Please try again.', errorAlert);
+                        }
+                        return;
+                    }
+
+                    // Success: advance to step 4 OTP verification
+                    currentPendingToken = data.pendingToken;
+                    $('otp_target_email').textContent = data.email || adminEmailInput.value;
+                    setStep(4);
+
+                } catch (err) {
+                    showFormError(err.message === 'Failed to fetch' || err.message.includes('fetch')
+                        ? 'Could not connect to the server. Check your connection and try again.'
+                        : (err.message || 'Something went wrong. Please try again.'), errorAlert);
+                } finally {
+                    submitBtn.disabled = false;
+                    backBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Register Organization</span> <i class="bi bi-check2-circle text-lg"></i>';
+                }
+            });
+
+            /* ---------- Step 4: Verify OTP ---------- */
+            async function handleVerifyOtp(code) {
+                if (!code || code.length !== 6) {
+                    if (registerOtpInput) registerOtpInput.setError('Please enter all 6 digits.');
+                    return;
+                }
+
+                if (!currentPendingToken) {
+                    showFormError('Registration session expired. Please start over.', errorAlert);
+                    setStep(1);
+                    return;
+                }
+
+                const originalBtnContent = verifyOtpBtn.innerHTML;
+                verifyOtpBtn.disabled = true;
+                verifyOtpBtn.innerHTML = '<span class="inline-block animate-spin">⟳</span> <span>Verifying...</span>';
+                clearFormError(errorAlert);
+                if (registerOtpInput) registerOtpInput.clearError();
+
+                try {
+                    const response = await fetch('/api/organizations/register-organization/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            pendingToken: currentPendingToken,
+                            code
+                        })
+                    });
+
+                    let data = {};
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        data = await response.json();
+                    }
+
+                    if (!response.ok) {
+                        if (registerOtpInput) {
+                            registerOtpInput.setError(data.message || 'Invalid or expired verification code.');
+                        } else {
+                            showFormError(data.message || 'Verification failed.', errorAlert);
+                        }
+                        return;
+                    }
+
+                    succeeded = true;
+                    successAlert.classList.remove('hidden');
+                    successMessage.textContent = 'Organization and administrator account verified! Redirecting to sign in...';
+                    successAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    verifyOtpBtn.innerHTML = '<i class="bi bi-check2-circle"></i> <span>Verified</span>';
+                    setTimeout(() => { window.location.href = '/signin.html'; }, 2000);
+
+                } catch (err) {
+                    if (registerOtpInput) {
+                        registerOtpInput.setError('Could not connect to the server. Check your connection and try again.');
+                    } else {
+                        showFormError('Could not connect to the server. Check your connection and try again.', errorAlert);
+                    }
+                } finally {
+                    if (!succeeded) {
+                        verifyOtpBtn.disabled = false;
+                        verifyOtpBtn.innerHTML = originalBtnContent;
+                    }
+                }
+            }
+
+            /* ---------- Resend OTP ---------- */
+            async function handleResendOtp() {
+                if (!currentPendingToken) {
+                    showFormError('Session expired. Please restart registration.', errorAlert);
+                    setStep(1);
+                    return;
+                }
+
+                clearFormError(errorAlert);
+                if (registerOtpInput) registerOtpInput.clearError();
+
+                try {
+                    const response = await fetch('/api/organizations/register-organization/resend', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ pendingToken: currentPendingToken })
+                    });
+
+                    let data = {};
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        data = await response.json();
+                    }
+
+                    if (!response.ok) {
+                        if (response.status === 429 && data.retryAfterSeconds) {
+                            if (registerOtpInput) registerOtpInput.startCooldown(data.retryAfterSeconds);
+                        }
+                        if (registerOtpInput) {
+                            registerOtpInput.setError(data.message || 'Failed to resend code.');
+                        } else {
+                            showFormError(data.message || 'Failed to resend code.', errorAlert);
+                        }
+                        return;
+                    }
+
+                    if (registerOtpInput) {
+                        registerOtpInput.clear();
+                        registerOtpInput.startCooldown(60);
+                    }
+                } catch (err) {
+                    if (registerOtpInput) {
+                        registerOtpInput.setError('Could not connect to the server. Check your connection and try again.');
+                    }
+                }
+            }
+
+            setStep(1);
+        });
+    </script>
+</body>
+
+</html>

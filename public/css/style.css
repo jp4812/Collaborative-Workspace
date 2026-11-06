@@ -92,3 +92,58 @@ h1, h2, h3, h4, h5, h6, .page-heading, .modal-title {
     stroke-dashoffset: 0;
   }
 }
+
+/* ==========================================================================
+   Accessible Form Validation & Inline Error Styles
+   ========================================================================== */
+.nx-error {
+  margin-top: .375rem;
+  font-size: .75rem;
+  font-weight: 500;
+  color: #dc2626;
+  display: flex;
+  gap: .35rem;
+  align-items: center;
+}
+.nx-error.hidden,
+.nx-error:empty {
+  display: none !important;
+}
+.nx-error:not(:empty)::before {
+  content: "\f33a";
+  font-family: "bootstrap-icons";
+}
+.nx-error:empty::before {
+  content: none !important;
+  display: none !important;
+}
+.nx-input.is-invalid,
+.form-input.is-invalid,
+.form-textarea.is-invalid,
+input.is-invalid,
+textarea.is-invalid,
+select.is-invalid {
+  border-color: #f87171 !important;
+}
+.nx-input.is-invalid:focus,
+.form-input.is-invalid:focus,
+.form-textarea.is-invalid:focus,
+input.is-invalid:focus,
+textarea.is-invalid:focus,
+select.is-invalid:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, .15) !important;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .nx-input.is-invalid,
+  .form-input.is-invalid,
+  .form-textarea.is-invalid,
+  input.is-invalid,
+  .nx-shake {
+    animation: nx-shake .3s;
+  }
+}
+@keyframes nx-shake {
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
